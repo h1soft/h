@@ -1,0 +1,54 @@
+<?php
+
+namespace H1Soft\H\Web;
+
+abstract class AbstractTemplate extends \H1Soft\H\Collections\HArray {
+
+	protected $_templateFileName;
+
+	protected $_viewPath;
+
+	protected $_theme;
+
+	abstract public function render($filename = false, $data = false,$output = false);
+
+	abstract public function assign($_valName,$_valValue);
+
+	abstract public function get($_valName);
+
+	abstract public function set($_valName,$_valValue);
+
+	public function getTemplateEngine() {
+		return get_called_class();
+	}
+
+	public function getTemplateFileName() {
+		return $this->_templateFileName;
+	}
+
+	public function setTemplateFileName($_templateFileName) {
+		return $this->_templateFileName = $_templateFileName;
+	}
+
+	public function getViewPath() {
+		return $this->_viewPath;
+	}
+
+	public function setViewPath($_viewPath) {
+		return $this->_viewPath = $_viewPath;
+	}
+
+
+	public function getTheme() {
+		return $this->_theme;
+	}
+
+	public function setTheme($_theme) {
+		return $this->_theme = $_theme;
+	}
+
+
+	
+
+}
+

@@ -1,0 +1,11 @@
+Options -MultiViews
+Options -Indexes
+
+RewriteEngine On
+RewriteBase /h1soft/h/
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
+RewriteRule ^(.+)$ index.php?r=$1 [QSA,L]

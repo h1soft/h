@@ -1,0 +1,19 @@
+{
+    "name": "h1soft/h",
+    "description": "PHP 5.3 MVC FRAMEWORK",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "allen",
+            "email": "h@h1soft.net"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.0",
+        "twig/twig": "1.*"
+    },
+    "autoload": {
+        "psr-4": { "H1Soft\\H\\": "src" }
+    }
+}
