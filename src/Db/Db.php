@@ -2,11 +2,49 @@
 
 namespace H1Soft\H\Db;
 
-abstract class Db {
-	
-	private $_driver;
+use H1Soft\H\Web\Config;
 
-	public function __construct(){
-		
-	}
+class Db extends \H1Soft\H\Singleton {
+
+    /**
+     * 数据库连接池
+     * @var array 
+     */
+    private static $_connect_pools = array();
+
+    
+    /**
+     * 获取数据库连接
+     * @param string $_dbname
+     */
+    public static function getConnection($_dbname = 'db') {        
+        if (isset(self::$_connect_pools[$_dbname])) {
+            return self::$_connect_pools[$_dbname];
+        } else {
+            return self::_initConnection($_dbname);
+        }
+    }
+
+    private static function _initConnection($_dbname) {
+        $dbconf = Config::get("databases.$_dbname");
+       
+        if ($dbconf && is_array($dbconf) && isset($dbconf['driver'])) {
+            switch ($dbconf['driver']) {
+                case 'mysqli':
+                    self::$_connect_pools[$_dbname] = new \H1Soft\H\Db\Driver\MySQLi($dbconf);                    
+                    break;
+                case 'pdo_mysql':
+                    break;
+                case 'sqlite':
+                    break;
+                default:
+                    return NULL;
+                    break;
+            }
+            return self::$_connect_pools[$_dbname];
+        } else {
+            return NULL;
+        }
+    }
+
 }

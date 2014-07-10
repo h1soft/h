@@ -1,10 +1,9 @@
 <?php
 
-
 namespace H1Soft\H\ClassLoader;
 
-class Psr4ClassLoader
-{
+class Psr4ClassLoader {
+
     /**
      * @var array
      */
@@ -14,9 +13,8 @@ class Psr4ClassLoader
      * @param string $prefix
      * @param string $baseDir
      */
-    public function addPrefix($prefix, $baseDir)
-    {
-        $prefix = trim($prefix, '\\').'\\';
+    public function addPrefix($prefix, $baseDir) {
+        $prefix = trim($prefix, '\\') . '\\';
         $baseDir = rtrim($baseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         $this->prefixes[] = array($prefix, $baseDir);
     }
@@ -26,8 +24,7 @@ class Psr4ClassLoader
      *
      * @return string|null
      */
-    public function findFile($class)
-    {
+    public function findFile($class) {
         $class = ltrim($class, '\\');
 
         foreach ($this->prefixes as $current) {
@@ -47,8 +44,7 @@ class Psr4ClassLoader
      *
      * @return bool
      */
-    public function loadClass($class)
-    {
+    public function loadClass($class) {
         $file = $this->findFile($class);
         if (null !== $file) {
             require $file;
@@ -64,16 +60,15 @@ class Psr4ClassLoader
      *
      * @param bool    $prepend
      */
-    public function register($prepend = false)
-    {
+    public function register($prepend = false) {
         spl_autoload_register(array($this, 'loadClass'), true, $prepend);
     }
 
     /**
      * Removes this instance from the registered autoloaders.
      */
-    public function unregister()
-    {
+    public function unregister() {
         spl_autoload_unregister(array($this, 'loadClass'));
     }
+
 }

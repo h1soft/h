@@ -4,17 +4,15 @@ namespace H1Soft\H\Web\Template;
 
 class View extends \H1Soft\H\Web\AbstractTemplate {
 
-	private $_charset = 'utf-8';
+    private $_charset = 'utf-8';
+    private $_ext = ".php";
 
-	private $_ext = ".php";
+    public function __construct() {
+        
+    }
 
-	public function __construct(){
-		
-	}
-
-	public function render($filename = false, $data = false,$output = true)
-    {
-        if($data) {
+    public function render($filename = false, $data = false, $output = true) {
+        if ($data) {
             if (!is_array($data)) {
                 throw new RuntimeException("You must pass an array to data view.");
             }
@@ -33,16 +31,16 @@ class View extends \H1Soft\H\Web\AbstractTemplate {
         return $rendered;
     }
 
-	public function assign($_valName,$_valValue) {
+    public function assign($_valName, $_valValue) {
+        
+    }
 
-	}
+    public function get($_valName) {
+        
+    }
 
-	public function get($_valName) {
-
-	}
-
-	public function set($_valName,$_valValue) {
-
-	}
+    public function set($_valName, $_valValue) {
+        
+    }
 
 }

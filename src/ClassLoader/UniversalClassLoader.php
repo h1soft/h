@@ -58,8 +58,8 @@ namespace H1Soft\H\ClassLoader;
  *
  * @api
  */
-class UniversalClassLoader
-{
+class UniversalClassLoader {
+
     private $namespaces = array();
     private $prefixes = array();
     private $namespaceFallbacks = array();
@@ -72,8 +72,7 @@ class UniversalClassLoader
      *
      * @param bool    $useIncludePath
      */
-    public function useIncludePath($useIncludePath)
-    {
+    public function useIncludePath($useIncludePath) {
         $this->useIncludePath = $useIncludePath;
     }
 
@@ -83,8 +82,7 @@ class UniversalClassLoader
      *
      * @return bool
      */
-    public function getUseIncludePath()
-    {
+    public function getUseIncludePath() {
         return $this->useIncludePath;
     }
 
@@ -93,8 +91,7 @@ class UniversalClassLoader
      *
      * @return array A hash with namespaces as keys and directories as values
      */
-    public function getNamespaces()
-    {
+    public function getNamespaces() {
         return $this->namespaces;
     }
 
@@ -103,8 +100,7 @@ class UniversalClassLoader
      *
      * @return array A hash with class prefixes as keys and directories as values
      */
-    public function getPrefixes()
-    {
+    public function getPrefixes() {
         return $this->prefixes;
     }
 
@@ -113,8 +109,7 @@ class UniversalClassLoader
      *
      * @return array An array of directories
      */
-    public function getNamespaceFallbacks()
-    {
+    public function getNamespaceFallbacks() {
         return $this->namespaceFallbacks;
     }
 
@@ -123,8 +118,7 @@ class UniversalClassLoader
      *
      * @return array An array of directories
      */
-    public function getPrefixFallbacks()
-    {
+    public function getPrefixFallbacks() {
         return $this->prefixFallbacks;
     }
 
@@ -135,8 +129,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function registerNamespaceFallbacks(array $dirs)
-    {
+    public function registerNamespaceFallbacks(array $dirs) {
         $this->namespaceFallbacks = $dirs;
     }
 
@@ -145,8 +138,7 @@ class UniversalClassLoader
      *
      * @param string $dir A directory
      */
-    public function registerNamespaceFallback($dir)
-    {
+    public function registerNamespaceFallback($dir) {
         $this->namespaceFallbacks[] = $dir;
     }
 
@@ -157,8 +149,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function registerPrefixFallbacks(array $dirs)
-    {
+    public function registerPrefixFallbacks(array $dirs) {
         $this->prefixFallbacks = $dirs;
     }
 
@@ -167,8 +158,7 @@ class UniversalClassLoader
      *
      * @param string $dir A directory
      */
-    public function registerPrefixFallback($dir)
-    {
+    public function registerPrefixFallback($dir) {
         $this->prefixFallbacks[] = $dir;
     }
 
@@ -179,8 +169,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function registerNamespaces(array $namespaces)
-    {
+    public function registerNamespaces(array $namespaces) {
         foreach ($namespaces as $namespace => $locations) {
             $this->namespaces[$namespace] = (array) $locations;
         }
@@ -194,8 +183,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function registerNamespace($namespace, $paths)
-    {
+    public function registerNamespace($namespace, $paths) {
         $this->namespaces[$namespace] = (array) $paths;
     }
 
@@ -206,8 +194,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function registerPrefixes(array $classes)
-    {
+    public function registerPrefixes(array $classes) {
         foreach ($classes as $prefix => $locations) {
             $this->prefixes[$prefix] = (array) $locations;
         }
@@ -221,8 +208,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function registerPrefix($prefix, $paths)
-    {
+    public function registerPrefix($prefix, $paths) {
         $this->prefixes[$prefix] = (array) $paths;
     }
 
@@ -233,8 +219,7 @@ class UniversalClassLoader
      *
      * @api
      */
-    public function register($prepend = false)
-    {
+    public function register($prepend = false) {
         spl_autoload_register(array($this, 'loadClass'), true, $prepend);
     }
 
@@ -245,8 +230,7 @@ class UniversalClassLoader
      *
      * @return bool|null    True, if loaded
      */
-    public function loadClass($class)
-    {
+    public function loadClass($class) {
         if ($file = $this->findFile($class)) {
             require $file;
 
@@ -261,20 +245,19 @@ class UniversalClassLoader
      *
      * @return string|null The path, if found
      */
-    public function findFile($class)
-    {
+    public function findFile($class) {
         if (false !== $pos = strrpos($class, '\\')) {
             // namespaced class name
             $namespace = substr($class, 0, $pos);
             $className = substr($class, $pos + 1);
-            $normalizedClass = str_replace('\\', DIRECTORY_SEPARATOR, $namespace).DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $className).'.php';
+            $normalizedClass = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
             foreach ($this->namespaces as $ns => $dirs) {
                 if (0 !== strpos($namespace, $ns)) {
                     continue;
                 }
 
                 foreach ($dirs as $dir) {
-                    $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
+                    $file = $dir . DIRECTORY_SEPARATOR . $normalizedClass;
                     if (is_file($file)) {
                         return $file;
                     }
@@ -282,22 +265,21 @@ class UniversalClassLoader
             }
 
             foreach ($this->namespaceFallbacks as $dir) {
-                $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
+                $file = $dir . DIRECTORY_SEPARATOR . $normalizedClass;
                 if (is_file($file)) {
                     return $file;
                 }
             }
-
         } else {
             // PEAR-like class name
-            $normalizedClass = str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
+            $normalizedClass = str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
             foreach ($this->prefixes as $prefix => $dirs) {
                 if (0 !== strpos($class, $prefix)) {
                     continue;
                 }
 
                 foreach ($dirs as $dir) {
-                    $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
+                    $file = $dir . DIRECTORY_SEPARATOR . $normalizedClass;
                     if (is_file($file)) {
                         return $file;
                     }
@@ -305,7 +287,7 @@ class UniversalClassLoader
             }
 
             foreach ($this->prefixFallbacks as $dir) {
-                $file = $dir.DIRECTORY_SEPARATOR.$normalizedClass;
+                $file = $dir . DIRECTORY_SEPARATOR . $normalizedClass;
                 if (is_file($file)) {
                     return $file;
                 }
@@ -316,4 +298,5 @@ class UniversalClassLoader
             return $file;
         }
     }
+
 }

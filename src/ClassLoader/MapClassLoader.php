@@ -16,8 +16,8 @@ namespace Symfony\Component\ClassLoader;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class MapClassLoader
-{
+class MapClassLoader {
+
     private $map = array();
 
     /**
@@ -25,8 +25,7 @@ class MapClassLoader
      *
      * @param array $map A map where keys are classes and values the absolute file path
      */
-    public function __construct(array $map)
-    {
+    public function __construct(array $map) {
         $this->map = $map;
     }
 
@@ -35,8 +34,7 @@ class MapClassLoader
      *
      * @param bool    $prepend Whether to prepend the autoloader or not
      */
-    public function register($prepend = false)
-    {
+    public function register($prepend = false) {
         spl_autoload_register(array($this, 'loadClass'), true, $prepend);
     }
 
@@ -45,8 +43,7 @@ class MapClassLoader
      *
      * @param string $class The name of the class
      */
-    public function loadClass($class)
-    {
+    public function loadClass($class) {
         if (isset($this->map[$class])) {
             require $this->map[$class];
         }
@@ -59,10 +56,10 @@ class MapClassLoader
      *
      * @return string|null The path, if found
      */
-    public function findFile($class)
-    {
+    public function findFile($class) {
         if (isset($this->map[$class])) {
             return $this->map[$class];
         }
     }
+
 }

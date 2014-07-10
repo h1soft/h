@@ -2,14 +2,14 @@
 
 namespace H1Soft\H\Web\Exception;
 
+class Error extends \H1Soft\H\Web\Controller {
 
-class Error extends  \H1Soft\H\Web\Controller {
-	public function indexAction(){
-		
-	}
+    public function indexAction() {
+        
+    }
 
-	public function notfoundAction(){
-		echo <<<EOF
+    public function notfoundAction() {
+        echo <<<EOF
 		<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
 <title>404 Not Found</title>
@@ -20,10 +20,10 @@ class Error extends  \H1Soft\H\Web\Controller {
 error was encountered while trying to use an ErrorDocument to handle the request.</p>
 </body></html>
 EOF;
-	}
+    }
 
-	public function errorAction(){
-		echo <<<EOF
+    public function errorAction() {
+        echo <<<EOF
 		
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
@@ -44,10 +44,10 @@ error was encountered while trying to use an ErrorDocument to handle the request
 </body></html>
 
 EOF;
-	}
+    }
 
-	public function perimAction(){
-		
-	}
+    public function perimAction() {
+        
+    }
+
 }
-

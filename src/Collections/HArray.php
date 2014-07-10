@@ -2,7 +2,6 @@
 
 namespace H1Soft\H\Collections;
 
-
 class HArray implements \ArrayAccess {
 
     /**
@@ -19,7 +18,7 @@ class HArray implements \ArrayAccess {
      * @param string The key data to retrieve
      * @access public
      */
-    public function __get ($key) {
+    public function __get($key) {
         if (!isset($this->data[$key])) {
             return NULL;
         }
@@ -33,7 +32,7 @@ class HArray implements \ArrayAccess {
      * @param mixed  The value to set
      * @access public 
      */
-    public function __set($key,$value) {
+    public function __set($key, $value) {
         $this->data[$key] = $value;
     }
 
@@ -45,7 +44,7 @@ class HArray implements \ArrayAccess {
      * @return boolean
      * @abstracting ArrayAccess
      */
-    public function __isset ($key) {
+    public function __isset($key) {
         return isset($this->data[$key]);
     }
 
@@ -67,7 +66,7 @@ class HArray implements \ArrayAccess {
      * @access public
      * @abstracting ArrayAccess
      */
-    public function offsetSet($offset,$value) {
+    public function offsetSet($offset, $value) {
         if (is_null($offset)) {
             $this->data[] = $value;
         } else {

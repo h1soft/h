@@ -1,39 +1,38 @@
 <?php
 
-return array(
-    //router
+return array(    
     'router' => array(
-        'controller'=>'Index',
-        'action'=>'Index',
-        'app'=>'Frontend',
-        'suffix'=>'.html'
+        'app' => 'Frontend',
+        'controller' => 'Index',
+        'action' => 'Index',        
+        'suffix' => '.html',
+        'uri_protocol'=> 'PATH_INFO',        
     ),
-
     'alias' => array(
-        'backend'=>'admin'
+        'admin' => 'backend'
     ),
-    'src'=>'Apps',
-    'autoload'=> array(
-        'psr0'=>array(),
-        'psr4'=>array(),
+    'src' => 'Apps',
+    'autoload' => array(
+        'psr0' => array(),
+        'psr4' => array(),
+    ),
+    // database settings
+    'databases' => array(
+        'db' => array(
+            'driver' => 'mysqli',
+            'host' => 'localhost',
+            'database' => 'h',
+            'username' => 'root',
+            'password' => '',
+            'prefix' => 'h_',
+            'charset' => 'utf8',            
+            'port' => '3306'
         ),
-	// database settings
-    'db' => array(        
-        'driver' => 'mysql',
-        'host' => 'localhost',
-        'database' => 'mvc',
-        'username' => 'root',
-        'password' => '',
-        'prefix' => 'apcmf_',
-        'charset' => 'uft8',
-        'schema' => 'public'
-    ),    
-    'debug'=>true,
-    'view'=>array(
-        'theme'=>'default',
-        'template'=>'Twig',
-        'cache'=>false
     ),
-    
-
+    'debug' => true,
+    'view' => array(
+        'theme' => 'default',
+        'template' => 'Twig',
+        'cache' => false
+    ),
 );

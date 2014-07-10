@@ -2,130 +2,131 @@
 
 namespace H1Soft\H\Web;
 
-
 class Router {
 
-	protected $requestUri;
-
-	protected $defaultController = "Index";
-
-	protected $defaultAction = "Index";
-
-	protected $defaultApp = "Frontend";	
-
+    protected $requestUri;
+    protected $defaultController = "Index";
+    protected $defaultAction = "Index";
+    protected $defaultApp = "Frontend";
     protected $_cobj_ref = NULL;
-
     protected $suffix = '';
-
     private $application;
-
     public $strNameSpace;
-
     public $errorController = "\\H1Soft\\H\\Web\\Exception\\Error";
 
- 	public function __construct()
-    {
+    public function __construct() {
         $this->application = Application::app();
     }
 
-    public function dispatch(){
-    	$this->initRequest();        
-        echo $this->defaultApp,'<br/>';
-        echo $this->defaultController,'<br/>';
-        echo $this->defaultAction,'<br/>';
+    public function dispatch() {
+        $this->initRequest();
+//        echo $this->defaultApp, '<br/>';
+//        echo $this->defaultController, '<br/>';
+//        echo $this->defaultAction, '<br/>';
 
         $this->_cobj_ref->init();
-        
-        $this->_cobj_ref->before();        
-             
-        if (method_exists($this->_cobj_ref,$this->getActionName() )){
-            call_user_func_array(array($this->_cobj_ref,$this->getActionName()),array());    
-        }else{
-            $this->_notfound();
-        }        
-        
-        $this->_cobj_ref->after();    	
 
+        $this->_cobj_ref->before();
+
+        if (method_exists($this->_cobj_ref, $this->getActionName())) {
+            $actionName = $this->getActionName();
+            $this->_cobj_ref->$actionName();
+//            call_user_func_array(array($this->_cobj_ref, $this->getActionName()), array());
+        } else {
+            $this->_notfound();
+        }
+
+        $this->_cobj_ref->after();
     }
 
-    private function initRequest(){
+    private function initRequest() {
         //init config
-        if(isset($this->application->router) && isset($this->application->router['suffix'])){
+        if (isset($this->application->router) && isset($this->application->router['suffix'])) {
             $this->suffix = $this->application->router['suffix'];
         }
 
-    	$this->_parseUrl();        
-
-        $this->defaultApp = isset($this->application->router['app']) ? $this->application->router['app'] : $this->defaultApp;                    
+        $this->_parseUrl();
+        
+        $this->defaultApp = isset($this->application->router['app']) ? $this->application->router['app'] : $this->defaultApp;
         $this->defaultController = isset($this->application->router['controller']) ? $this->application->router['controller'] : $this->defaultController;
-        $this->defaultAction = isset($this->application->router['action']) ? $this->application->router['action'].'Action' : $this->defaultAction.'Action';
-    	
-    	if(is_array($this->requestUri)){
+        $this->defaultAction = isset($this->application->router['action']) ? $this->application->router['action'] . 'Action' : $this->defaultAction . 'Action';
+
+        if (is_array($this->requestUri)) {
             $_param_len = count($this->requestUri);
             
-            switch ($_param_len) {                
-                case 1:                     
-                    if (Application::checkApp(ucwords($this->requestUri[0]))) {                       
-                        $this->defaultApp = ucwords($this->requestUri[0]);    
-                        $this->_defaultController();                        
-                    }else if(Application::checkController(ucwords($this->requestUri[0]))) {
-                                               
-                    }else if(Application::checkAction(strtolower($this->requestUri[0]))) {  
-                                          
-                    }else{                        
-                        $this->_defaultController();                     
+            //alias
+            $alias = \H1Soft\H\Web\Config::get('alias');           
+            if(is_array($alias)) {
+                $appname = $this->requestUri[0];
+                if(isset($alias[$appname])){
+                    $this->defaultApp = $alias[$appname];      
+                    $this->requestUri[0] = $alias[$appname];  
+                }
+            }
+            
+            switch ($_param_len) {
+                case 1:
+                    if (Application::checkApp($this->requestUri[0])) {
+                        $this->defaultApp = ucwords($this->requestUri[0]);
+                        $this->_defaultController();
+                    } else if (Application::checkController(ucwords($this->requestUri[0]))) {
+                        
+                    } else if (Application::checkAction(strtolower($this->requestUri[0]))) {
+                        
+                    } else {
+                        $this->_defaultController();
                     }
 
                     break;
                 case 2:
-                
-                    if (Application::checkApp(ucwords($this->requestUri[0]))) {                        
+
+                    if (Application::checkApp($this->requestUri[0])) {
                         $this->defaultApp = ucwords($this->requestUri[0]);
 
-                        if(Application::checkController(ucwords($this->requestUri[1]))) {                          
-                            $this->defaultController = ucwords($this->requestUri[1]);                                
-                        }else if(Application::checkAction(ucwords($this->requestUri[1]))) {
-                            $this->defaultAction = ucwords($this->requestUri[1]);                                
-                        }else{                             
-                             $this->_notfound(); 
-                        }                       
-                    }else if(Application::checkController(ucwords($this->requestUri[0]))) {
-                        $this->defaultController = ucwords($this->requestUri[0]);  
+                        if (Application::checkController(ucwords($this->requestUri[1]))) {
+                            $this->defaultController = ucwords($this->requestUri[1]);
+                        } else if (Application::checkAction(ucwords($this->requestUri[1]))) {
+                            $this->defaultAction = ucwords($this->requestUri[1]);
+                        } else {
+                            $this->_notfound();
+                        }
+                    } else if (Application::checkController(ucwords($this->requestUri[0]))) {
+                        $this->defaultController = ucwords($this->requestUri[0]);
 
-                        if(!Application::checkAction(strtolower($this->requestUri[1]))) {
-                            $this->_notfound();   
-                        }                                             
-                    }else{
+                        if (!Application::checkAction(strtolower($this->requestUri[1]))) {
+                            $this->_notfound();
+                        }
+                    } else {
                         $this->_notfound();
                     }
                     break;
                 case 3:
-                    
-                    if (Application::checkApp(ucwords($this->requestUri[0]))) {                        
+
+                    if (Application::checkApp($this->requestUri[0])) {
                         $this->defaultApp = ucwords($this->requestUri[0]);
-                        if(Application::checkController(ucwords($this->requestUri[1]))) {                          
-                            $this->defaultController = ucwords($this->requestUri[1]);                                
-                        }else{
-                             $this->_notfound();
-                             return;                           
+                        if (Application::checkController(ucwords($this->requestUri[1]))) {
+                            $this->defaultController = ucwords($this->requestUri[1]);
+                        } else {
+                            $this->_notfound();
+                            return;
                         }
-                        if(Application::checkController(ucwords($this->requestUri[1]))) {                          
-                            $this->defaultController = ucwords($this->requestUri[1]);                                
-                        }else{
-                             $this->_notfound();
-                             return;                             
+                        if (Application::checkController(ucwords($this->requestUri[1]))) {
+                            $this->defaultController = ucwords($this->requestUri[1]);
+                        } else {
+                            $this->_notfound();
+                            return;
                         }
 
-                        if(Application::checkAction(ucwords($this->requestUri[2]))) {                          
-                                                          
-                        }                      
-                    }else if(Application::checkController(ucwords($this->requestUri[0]))) {
-                        $this->defaultController = ucwords($this->requestUri[0]);    
-                        if(!Application::checkAction(ucwords($this->requestUri[1]))) {                      
+                        if (Application::checkAction(ucwords($this->requestUri[2]))) {
+                            
+                        }
+                    } else if (Application::checkController(ucwords($this->requestUri[0]))) {
+                        $this->defaultController = ucwords($this->requestUri[0]);
+                        if (!Application::checkAction(ucwords($this->requestUri[1]))) {
                             $this->_notfound();
                         }
-                        return;                       
-                    }else{
+                        return;
+                    } else {
                         $this->_notfound();
                     }
                     break;
@@ -141,31 +142,32 @@ class Router {
                 case 13:
                 case 14:
                 case 15:
-                    if (Application::checkApp(ucwords($this->requestUri[0]))) {                        
+                    if (Application::checkApp($this->requestUri[0])) {
                         $this->defaultApp = ucwords($this->requestUri[0]);
-                        if(Application::checkController(ucwords($this->requestUri[1]))) {                          
-                            $this->defaultController = ucwords($this->requestUri[1]);                                
-                        }else{
-                             $this->_notfound();
-                             return;                           
+                        if (Application::checkController(ucwords($this->requestUri[1]))) {
+                            $this->defaultController = ucwords($this->requestUri[1]);
+                        } else {
+                            $this->_notfound();
+                            return;
                         }
-                        if(Application::checkController(ucwords($this->requestUri[1]))) {                          
-                            $this->defaultController = ucwords($this->requestUri[1]);                                
-                        }else{
-                             $this->_notfound();
-                             return;                             
+                        if (Application::checkController(ucwords($this->requestUri[1]))) {
+                            $this->defaultController = ucwords($this->requestUri[1]);
+                        } else {
+                            $this->_notfound();
+                            return;
                         }
 
-                        if(Application::checkAction(ucwords($this->requestUri[2]))) {                          
-                                                          
-                        }                      
-                    }else if(Application::checkController(ucwords($this->requestUri[0]))) {
-                        $this->defaultController = ucwords($this->requestUri[0]);    
-                        if(!Application::checkAction(ucwords($this->requestUri[1]))) {                      
+                        if (Application::checkAction(ucwords($this->requestUri[2]))) {
+                            $this->prcParams(3, $_param_len);
+                        }
+                    } else if (Application::checkController(ucwords($this->requestUri[0]))) {
+                        $this->defaultController = ucwords($this->requestUri[0]);
+                        if (!Application::checkAction(ucwords($this->requestUri[1]))) {
                             $this->_notfound();
                         }
-                        return;                       
-                    }else{
+                        $this->prcParams(2, $_param_len);
+                        return;
+                    } else {
                         $this->_notfound();
                     }
                     break;
@@ -173,36 +175,31 @@ class Router {
                     $this->_notfound();
                     break;
             }//switch
-    	}else{
+        } else {
             //no param
             //app/c/a
             // $this->strNameSpace = sprintf("\\%s\\%s\\Controller\\%s",Application::app()->src,$this->getAppName(),$this->getControllerName());
             // $this->_cobj_ref = new $this->strNameSpace();            
-            $this->_defaultController();       
+            $this->_defaultController();
         }
     }
 
-    private function _parseUrl()
-    {
-        
-        if(isset($_GET['r']))
-        {            
-            $r =  str_replace($this->suffix, '', $_GET['r'] );
-            if (function_exists('filter_var')) {                                   
+    private function _parseUrl() {
+
+        if (isset($_GET['r'])) {
+            $r = str_replace($this->suffix, '', $_GET['r']);
+            if (function_exists('filter_var')) {
                 $this->requestUri = explode('/', filter_var(rtrim($r, '/'), FILTER_SANITIZE_STRING));
-            }else{
+            } else {
                 $this->requestUri = explode('/', $this->xssClean($r));
             }
             $this->application->request()->setSegment($this->requestUri);
-        }else{
+        } else {
             $this->requestUri = "";
         }
-
-
     }
 
     // private function _route_app(){
-
     // }
 
     public function getControllerName() {
@@ -210,9 +207,8 @@ class Router {
     }
 
     public function getController() {
-    	return $this->_cobj_ref;
+        return $this->_cobj_ref;
     }
-
 
     public function getActionName() {
         return $this->defaultAction;
@@ -223,23 +219,20 @@ class Router {
     }
 
     private function _notfound() {
-        $this->_cobj_ref = new $this->errorController();   
-        $this->defaultController = "Error";                       
+        $this->_cobj_ref = new $this->errorController();
+        $this->defaultController = "Error";
         $this->defaultAction = 'notfoundAction';
     }
 
     private function _defaultController() {
-        Application::checkController(\H1Soft\H\Web\Config::get('router.controller'),'Index');
-        Application::checkAction(\H1Soft\H\Web\Config::get('router.action'),'Index');
-        
+        Application::checkController(\H1Soft\H\Web\Config::get('router.controller'), 'Index');
+        Application::checkAction(\H1Soft\H\Web\Config::get('router.action'), 'Index');
     }
 
-
-    function xssClean($data, $htmlentities = 0)
-    {
+    function xssClean($data, $htmlentities = 0) {
         $htmlentities && $data = htmlentities($data, ENT_QUOTES, 'utf-8');
         // Fix &entity\n;
-        $data = str_replace(array('&amp;','&lt;','&gt;'), array('&amp;amp;','&amp;lt;','&amp;gt;'), $data);
+        $data = str_replace(array('&amp;', '&lt;', '&gt;'), array('&amp;amp;', '&amp;lt;', '&amp;gt;'), $data);
         $data = preg_replace('/(&#*\w+)[\x00-\x20]+;/u', '$1;', $data);
         $data = preg_replace('/(&#x*[0-9A-F]+);*/iu', '$1;', $data);
         $data = html_entity_decode($data, ENT_COMPAT, 'UTF-8');
@@ -260,22 +253,17 @@ class Router {
         // Remove namespaced elements (we do not need them)
         $data = preg_replace('#</*\w+:\w[^>]*+>#i', '', $data);
 
-        do
-        {
+        do {
             // Remove really unwanted tags
             $old_data = $data;
             $data = preg_replace('#</*(?:applet|b(?:ase|gsound|link)|embed|frame(?:set)?|i(?:frame|layer)|l(?:ayer|ink)|meta|object|s(?:cript|tyle)|title|xml)[^>]*+>#i', '', $data);
-        }
-        while ($old_data !== $data);
+        } while ($old_data !== $data);
 
-        // we are done...
-        $data = $this->filter_remote_img_type($data, FALSE);
-        return $data;
+        
+        return $this->filter_remote_img_type($data, FALSE);
     }
 
-
-    function filter_remote_img_type($text, $bbcode = TRUE)
-    {
+    function filter_remote_img_type($text, $bbcode = TRUE) {
         $pattern = $bbcode ? "/\[img[^\]]*\]\s*(.*?)+\s*\[\/img\]/is" : "/<img[^>]+src=[\'|\"]([^\'|\"]+)[\'|\"][^>]*[\/]?>/is";
         preg_match_all($pattern, $text, $matches);
         foreach ($matches[1] as $k => $src) {
@@ -288,15 +276,45 @@ class Router {
         return $text;
     }
 
-    public function setController($_cobj_ref){
+    public function setController($_cobj_ref) {
         $this->_cobj_ref = $_cobj_ref;
     }
-
-    public function setAction($name){
+    
+    /**
+     * 当前Action
+     * @param type $name
+     */
+    public function setAction($name) {
         $this->defaultAction = $name;
     }
-
-    public function getControllerNameSpace(){
+    
+    
+    public function getControllerNameSpace() {
         return $this->strNameSpace;
     }
+    
+    /**
+     * 处理PATH_INFO模式 参数
+     * @param type $_start_index
+     * @param type $_params_len
+     */
+    public function prcParams($_start_index,$_params_len) {
+        
+        if($_start_index < $_params_len){
+            $ps = array_slice($this->requestUri, $_start_index);    
+            $params = array();
+            for($i = 0 ; $i < $_params_len ; $i+=2){
+                $key = isset($ps[$i]) ? $ps[$i] : NULL;
+                $value = isset($ps[$i+1]) ? $ps[$i+1] : NULL;
+                if(!$key){
+                    continue;
+                }
+                $params[$key] = $value;
+            }
+            unset($ps);
+            $this->application->request()->setParams($params);
+        }
+    }
+
 }
+                
