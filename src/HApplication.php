@@ -2,8 +2,6 @@
 
 namespace H1Soft\H;
 
-date_default_timezone_set('UTC');
-
 iconv_set_encoding("internal_encoding", "UTF-8");
 
 mb_internal_encoding('UTF-8');
@@ -17,6 +15,14 @@ define('START_MEMORY_USAGE', memory_get_usage());
 define('DS', DIRECTORY_SEPARATOR);
 
 define('HVERSION', 'HMVC v1.2');
+
+define('H_ERROR', 'danger');
+
+define('H_WARNING', 'warning');
+
+define('H_INFO', 'info');
+
+define('H_SUCCESS', 'success');
 
 // Absolute path to the system folder
 define('SP', realpath(__DIR__) . DS);

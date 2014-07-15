@@ -16,6 +16,7 @@ class Db extends \H1Soft\H\Singleton {
     /**
      * 获取数据库连接
      * @param string $_dbname
+     * @return \H1Soft\H\Db\Driver\MySQLi
      */
     public static function getConnection($_dbname = 'db') {        
         if (isset(self::$_connect_pools[$_dbname])) {

@@ -4,10 +4,14 @@ namespace H1Soft\H\Utils;
 
 class Validation {
 
+    function isAscii($string) {
+        return !preg_match('/[^\x00-\x7F]/S', $string);
+    }
+
     /**
      * 验证邮箱
      */
-    public static function email($str) {
+    public static function isEMail($str) {
         if (empty($str)) {
             return true;
         }
@@ -26,7 +30,7 @@ class Validation {
     /**
      * 验证手机号码
      */
-    public static function mobile($str) {
+    public static function isMobile($str) {
         if (empty($str)) {
             return false;
         }
@@ -37,7 +41,7 @@ class Validation {
     /**
      * 验证固定电话
      */
-    public static function tel($str) {
+    public static function isTel($str) {
         if (empty($str)) {
             return true;
         }
@@ -47,7 +51,7 @@ class Validation {
     /**
      * 验证qq号码
      */
-    public static function qq($str) {
+    public static function isQQ($str) {
         if (empty($str)) {
             return false;
         }
@@ -58,7 +62,7 @@ class Validation {
     /**
      * 验证邮政编码
      */
-    public static function zipCode($str) {
+    public static function isZipCode($str) {
         if (empty($str)) {
             return true;
         }
@@ -69,7 +73,7 @@ class Validation {
     /**
      * 验证ip
      */
-    public static function ip($str) {
+    public static function isIP($str) {
         if (empty($str)) {
             return true;
         }
@@ -103,7 +107,7 @@ class Validation {
     /**
      * 验证网址
      */
-    public static function url($str) {
+    public static function isURL($str) {
         if (empty($str)) {
             return false;
         }

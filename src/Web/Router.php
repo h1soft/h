@@ -7,7 +7,7 @@ class Router {
     protected $requestUri;
     protected $defaultController = "Index";
     protected $defaultAction = "Index";
-    protected $defaultApp = "Frontend";
+    protected $defaultApp = "Catalog";
     protected $_cobj_ref = NULL;
     protected $suffix = '';
     private $application;
@@ -23,7 +23,10 @@ class Router {
 //        echo $this->defaultApp, '<br/>';
 //        echo $this->defaultController, '<br/>';
 //        echo $this->defaultAction, '<br/>';
-
+        if(!$this->_cobj_ref){
+            $this->_notfound();
+        }
+        
         $this->_cobj_ref->init();
 
         $this->_cobj_ref->before();
@@ -41,29 +44,28 @@ class Router {
 
     private function initRequest() {
         //init config
-        if (isset($this->application->router) && isset($this->application->router['suffix'])) {
-            $this->suffix = $this->application->router['suffix'];
-        }
+        $this->suffix = Config::get('router.suffix');
+
+        $this->_rewrite();
 
         $this->_parseUrl();
-        
-        $this->defaultApp = isset($this->application->router['app']) ? $this->application->router['app'] : $this->defaultApp;
+
+        $this->defaultApp = Config::get('router.app', $this->defaultApp);
         $this->defaultController = isset($this->application->router['controller']) ? $this->application->router['controller'] : $this->defaultController;
         $this->defaultAction = isset($this->application->router['action']) ? $this->application->router['action'] . 'Action' : $this->defaultAction . 'Action';
 
         if (is_array($this->requestUri)) {
             $_param_len = count($this->requestUri);
-            
             //alias
-            $alias = \H1Soft\H\Web\Config::get('alias');           
-            if(is_array($alias)) {
+            $alias = \H1Soft\H\Web\Config::get('alias');
+            if (is_array($alias)) {
                 $appname = $this->requestUri[0];
-                if(isset($alias[$appname])){
-                    $this->defaultApp = $alias[$appname];      
-                    $this->requestUri[0] = $alias[$appname];  
+                if (isset($alias[$appname])) {
+                    $this->defaultApp = $alias[$appname];
+                    $this->requestUri[0] = $alias[$appname];
                 }
             }
-            
+
             switch ($_param_len) {
                 case 1:
                     if (Application::checkApp($this->requestUri[0])) {
@@ -117,8 +119,9 @@ class Router {
                             return;
                         }
 
-                        if (Application::checkAction(ucwords($this->requestUri[2]))) {
-                            
+                        if (!Application::checkAction(ucwords($this->requestUri[2]))) {
+                            $this->_notfound();
+                            return;
                         }
                     } else if (Application::checkController(ucwords($this->requestUri[0]))) {
                         $this->defaultController = ucwords($this->requestUri[0]);
@@ -150,15 +153,10 @@ class Router {
                             $this->_notfound();
                             return;
                         }
-                        if (Application::checkController(ucwords($this->requestUri[1]))) {
-                            $this->defaultController = ucwords($this->requestUri[1]);
-                        } else {
-                            $this->_notfound();
-                            return;
-                        }
-
                         if (Application::checkAction(ucwords($this->requestUri[2]))) {
                             $this->prcParams(3, $_param_len);
+                        } else {
+                            $this->prcParams(2, $_param_len);
                         }
                     } else if (Application::checkController(ucwords($this->requestUri[0]))) {
                         $this->defaultController = ucwords($this->requestUri[0]);
@@ -185,17 +183,60 @@ class Router {
     }
 
     private function _parseUrl() {
-
+        //path_info
+        if (isset($_SERVER['PATH_INFO'])) {
+            $_GET['r'] = $_SERVER['PATH_INFO'];
+        }
         if (isset($_GET['r'])) {
+
             $r = str_replace($this->suffix, '', $_GET['r']);
             if (function_exists('filter_var')) {
-                $this->requestUri = explode('/', filter_var(rtrim($r, '/'), FILTER_SANITIZE_STRING));
+                $this->requestUri = explode('/', filter_var(trim($r, '/'), FILTER_SANITIZE_STRING));
             } else {
-                $this->requestUri = explode('/', $this->xssClean($r));
+                $this->requestUri = explode('/', $this->xssClean(trim($r, '/')));
             }
             $this->application->request()->setSegment($this->requestUri);
         } else {
             $this->requestUri = "";
+        }
+    }
+
+    private function _rewrite() {
+        //读取伪静态规则
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $rewrites = Config::get('router.rewrite');
+//        $requestUri = str_replace($this->suffix, '', $requestUri);
+
+        foreach ($rewrites as $rewrite => $value) {
+            $rewrite = str_replace('/', '\/', $rewrite);
+
+            if (preg_match("/$rewrite/i", $requestUri, $paramValues)) {
+                $paramNum = 0;
+                if (preg_match_all("/{[0-9]}/", $value, $paramNumRs)) {
+                    if (isset($paramNumRs[0])) {
+                        $paramNum = count($paramNumRs[0]);
+                    }
+                }
+
+                if (($paramNum + 1) == count($paramValues)) {
+                    $paramValues = array_slice($paramValues, 1);
+                } else {
+                    continue;
+                }
+
+                $patterns = array();
+                $replacements = array();
+                foreach ($paramValues as $key => $val) {
+                    $patterns[] = "/\{$key\}/";
+                    $replacements[] = $val;
+                }
+
+                $_GET['r'] = preg_replace($patterns, $replacements, $value);
+            }
+
+
+
+//            echo $value;
         }
     }
 
@@ -259,7 +300,7 @@ class Router {
             $data = preg_replace('#</*(?:applet|b(?:ase|gsound|link)|embed|frame(?:set)?|i(?:frame|layer)|l(?:ayer|ink)|meta|object|s(?:cript|tyle)|title|xml)[^>]*+>#i', '', $data);
         } while ($old_data !== $data);
 
-        
+
         return $this->filter_remote_img_type($data, FALSE);
     }
 
@@ -279,7 +320,7 @@ class Router {
     public function setController($_cobj_ref) {
         $this->_cobj_ref = $_cobj_ref;
     }
-    
+
     /**
      * 当前Action
      * @param type $name
@@ -287,26 +328,25 @@ class Router {
     public function setAction($name) {
         $this->defaultAction = $name;
     }
-    
-    
+
     public function getControllerNameSpace() {
         return $this->strNameSpace;
     }
-    
+
     /**
      * 处理PATH_INFO模式 参数
      * @param type $_start_index
      * @param type $_params_len
      */
-    public function prcParams($_start_index,$_params_len) {
-        
-        if($_start_index < $_params_len){
-            $ps = array_slice($this->requestUri, $_start_index);    
+    public function prcParams($_start_index, $_params_len) {
+
+        if ($_start_index < $_params_len) {
+            $ps = array_slice($this->requestUri, $_start_index);
             $params = array();
-            for($i = 0 ; $i < $_params_len ; $i+=2){
+            for ($i = 0; $i < $_params_len; $i+=2) {
                 $key = isset($ps[$i]) ? $ps[$i] : NULL;
-                $value = isset($ps[$i+1]) ? $ps[$i+1] : NULL;
-                if(!$key){
+                $value = isset($ps[$i + 1]) ? $ps[$i + 1] : NULL;
+                if (!$key) {
                     continue;
                 }
                 $params[$key] = $value;
@@ -317,4 +357,3 @@ class Router {
     }
 
 }
-                

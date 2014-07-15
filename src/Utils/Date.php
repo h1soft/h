@@ -30,7 +30,7 @@ class Date {
         return $str;
     }
 
-    static function isDate($date) {
+    public static function isDate($date) {
         $stamp = strtotime($date);
 
         if (!is_numeric($stamp)) {
@@ -45,6 +45,13 @@ class Date {
         }
 
         return FALSE;
+    }
+
+    public static function toTimeStamp($date = NULL) {
+        if (!$date) {
+            return time();
+        }
+        return strtotime($date);
     }
 
 }

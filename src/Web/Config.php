@@ -43,8 +43,22 @@ class Config {
         return $_default;
     }
 
-    static public function set($_key, $_val) {
-        
+    static public function set($_key, $_default = "") {
+        if (empty($_key)) {
+            return $_default;
+        }
+        $subkeys = explode('.', $_key);
+
+        $_len = count($subkeys);
+        if ($_len == 1) {
+            Application::app()->$subkeys[0] = $_default;
+        } else if ($_len <= 2) {
+            $_tobj = Application::app()->$subkeys[0];
+            if (is_array($_tobj) && isset($_tobj[$subkeys[1]])) {
+                $_tobj[$subkeys[1]] = $_default;                
+                Application::app()->$subkeys[0] = $_tobj;
+            }            
+        }
     }
 
 }

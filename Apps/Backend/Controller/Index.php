@@ -2,6 +2,11 @@
 
 namespace Apps\Backend\Controller;
 
+/**
+ * 后台主页
+ * @authName 后台主页
+ * @authDescription 后台主页 登录 退出
+ */
 class Index extends \H1Soft\H\Web\Controller {
 
     function indexAction() {  
@@ -23,11 +28,17 @@ class Index extends \H1Soft\H\Web\Controller {
         $this->render('admin/index');
     }
 
+    /**
+     * @skipAuth
+     */
     function logoutAction() {
         \H1Soft\H\Web\Auth::getInstance()->logout();
         $this->redirect('index/login');
     }
-
+    
+    /**
+     * @skipAuth
+     */
     function loginAction() {
         $auth = \H1Soft\H\Web\Auth::getInstance();
 
@@ -36,19 +47,19 @@ class Index extends \H1Soft\H\Web\Controller {
             $password = post('password');
 
             if ($auth->login($username, $password)) {
-                $this->setFlashMessage("登录成功");
+//                $this->setFlashMessage("登录成功");
                 $this->assign('lflag', 0);
 
                 $this->redirect('index/index');
             } else {
-                $this->setFlashMessage("登录失败");
+//                $this->setFlashMessage("登录失败");
                 $this->assign('lflag', 1);
             }
         }
         $this->render('admin/login');
     }
 
-    function getSupportedImageTypes() {
+    private function getSupportedImageTypes() {
         $aSupportedTypes = array();
 
         $aPossibleImageTypeBits = array(

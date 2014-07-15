@@ -94,6 +94,36 @@ class Twig extends \H1Soft\H\Web\AbstractTemplate {
             return str_repeat($_str,$_num);
         });
         $this->_twigEnv->addFunction($repeat);
+        $url_ref = new \Twig_SimpleFunction('urlRef', function () {
+            $rtn = Application::session()->get('hurlref');
+            return $rtn ? $rtn : Application::app()->request()->curUrl();
+        });        
+        $this->_twigEnv->addFunction($url_ref);
+        $flash = new \Twig_SimpleFunction('flash', function ($_remove = true) {            
+            $flashmessage = Application::session()->get('hflash');
+            if($_remove){
+                Application::session()->remove('hflash');
+            }
+            return $flashmessage;
+        });        
+        $this->_twigEnv->addFunction($flash);        
+        $flashCode = new \Twig_SimpleFunction('flashCode', function ($_remove = true) {            
+            $hcode = Application::session()->get('hcode');
+            if($_remove){
+                Application::session()->remove('hcode');
+            }
+            return $hcode;
+        });        
+        $this->_twigEnv->addFunction($flashCode); 
+        $dateFormat = new \Twig_SimpleFunction('dateFormat', function ($_timestamp = NULL,$format = 'Y-m-d') {            
+            if($_timestamp){
+                return date($format, $_timestamp);
+            }else{
+                return NULL;
+            }
+            
+        });        
+        $this->_twigEnv->addFunction($dateFormat);
     }
 
 }

@@ -25,5 +25,4 @@ abstract class Singleton {
         return self::$instance[$classname];
     }
 
-
 }

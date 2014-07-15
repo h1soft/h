@@ -1,0 +1,12 @@
+{% extends "layout/home.html" %}
+
+{% block content %}
+<div class="col-md-8 blog_left">         
+    {%set post = Blog.post(post_id)%}
+    <h2>{{post.title}}</h2>
+    <a href="single-page.html"><img src="" alt="" class="blog_img img-responsive"/></a>                            
+    <p class="para">{{post.content|raw}}</p>
+      
+
+</div>
+{% endblock content %}

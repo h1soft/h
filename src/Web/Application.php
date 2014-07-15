@@ -34,7 +34,7 @@ class Application extends \H1Soft\H\HApplication {
 
         $this->_initConfig();
 
-        self::$request = new Request();
+        self::$request = Request::getInstance();
 
         //init route
         self::$_router = new Router();
@@ -105,9 +105,9 @@ class Application extends \H1Soft\H\HApplication {
             $this->$key = $value;
         }
 
-        if (!isset($this->themes) && !isset($this->themes['default'])) {
-            $this->themes = array('default' => 'default');
-        }
+//        if (!isset($this->themes) && !isset($this->themes['default'])) {
+//            $this->themes = array('default' => 'default');
+//        }
     }
 
     private function _autoLoader() {

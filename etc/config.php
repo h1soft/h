@@ -2,11 +2,16 @@
 
 return array(    
     'router' => array(
-        'app' => 'Frontend',
+        'app' => 'Catalog',
         'controller' => 'Index',
         'action' => 'Index',        
         'suffix' => '.html',
-        'uri_protocol'=> 'PATH_INFO',        
+        'showscriptname'=>false,
+        'uri_protocol'=> 'PATH_INFO',  
+        'rewrite'=>array(
+            '(\d+)/(\d+)/(\d+)/(.*)' => 'index/index/year/{0}/m/{1}/day/{2}/title/{3}',
+            'post/(\d+).html'=>'index/post/id/{0}'           
+        )
     ),
     'alias' => array(
         'admin' => 'backend'

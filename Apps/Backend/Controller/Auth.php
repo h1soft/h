@@ -2,87 +2,122 @@
 
 namespace Apps\Backend\Controller;
 
+/**
+ * 授权管理
+ * @authName 授权管理
+ * @authDescription 统一授权管理解决方案
+ */
 class Auth extends \H1Soft\H\Web\Controller {
 
-    function indexAction() {
-//        echo $this->isAllowed(__METHOD__);
-        $this->render('admin/index');
-    }
-
+    /**
+     * 权限验证失败
+     * @authName 权限验证失败
+     * @authDescription 
+     * @skipAuth
+     */
     function invalidAction() {
         $this->render('admin/invalid');
     }
 
     /**
-     * 资源管理
+     * 资源列表
+     * @authName 资源列表
+     * @authDescription 资源列表
      */
     function resourcesAction() {
+        $this->assign('menu_setting', 1);
         $this->isSuperAdmin();
-
-        //show resources
-        $resources = $this->db()->query("SELECT *,CONCAT( path,  '-', sort_order ) AS path
- FROM  `h_resources` 
-ORDER BY sort_order ASC,id DESC");
-        $result = array();
-        $this->category(0, 0, $resources, $result);
-
+        
+        $result = \H1Soft\H\Web\Extension\Category::query('resources');
+        $this->saveUrlRef();
 
 
         $this->render('admin/auth_resources', array('list' => $result));
     }
 
-    private function category($m, $id = 0, $category, &$result) {
-        if ($id == "") {
-            $id = 0;
-        }
-        $n = str_pad('', $m, '-', STR_PAD_RIGHT);
-        $n = str_replace("-", "&nbsp;&nbsp;&nbsp;&nbsp;", $n);
-        for ($i = 0; $i < count($category); $i++) {
-            if ($category[$i]['parent'] == $id) {
-                $category[$i]['Placeholder'] = $n . '|--';
-                $result[] = $category[$i];
-                $this->category($m + 1, $category[$i]['id'], $category, $result);
-            }
-        }
-    }
-
-    function editrsAction() {
-        $this->isAdmin();
+    /**
+     * 删除资源
+     * @authName 删除资源
+     * @authDescription 
+     */
+    function delrsAction() {
+        $this->isSuperAdmin();
         $id = intval($this->get('id'));
-
-        $resource = $this->db()->getRow("select * from `h_resources` where `id`=%d", array('id' => $id));
-
-        $this->render('admin/auth_resources_modify', array('item' => $resource));
+        $this->db()->delete('resources', "`id`=$id");
     }
 
+    /**
+     * 修改资源
+     * @authName 修改资源
+     * @authDescription 
+     */
+    function editrsAction() {
+        $this->isSuperAdmin();
+        $this->assign('menu_setting', 1);
+        $id = intval($this->get('id'));
+        if ($this->isPost()) {
+            $post = array(
+                'name' => $this->post('name'),
+                'namespace' => $this->post('namespace'),
+                'description' => $this->post('description'),
+                'sort_order' => intval($this->post('sort_order')),
+            );
+
+            $this->db()->update('resources', $post, "id=$id");
+            $this->redirect($this->urlRef());
+        }
+
+        $tbname = $this->db()->tb_name('resources');
+
+        $resource = $this->db()->getRow("select * from `$tbname` where `id`=%d", array('id' => $id));
+
+        $this->render('admin/auth_resources_modify', array('item' => $resource, 'id' => $id));
+    }
+
+    /**
+     * 添加资源
+     * @authName 添加资源
+     * @authDescription AJAX添加
+     */
     public function addrsAction() {
-        $this->isAdmin();
+        $this->isSuperAdmin();
+        $this->assign('menu_setting', 1);
         $namespace = $this->post('namespace');
+
+        $name = $this->post('name');
         $category = $this->post('category');
         $description = $this->post('description');
         $tbname = $this->db()->tb_name('resources');
-        if (empty($category)) {
-            $category = 0;
-            $parent_row = Array('id' => 0, 'parent' => 0, 'sort_order' => 1,
-                'level' => 0, 'path' => '0', 'namespace' => '',
-                'description' => '');
-        } else {
-            $parent_row = $this->db()->getRow("SELECT * FROM $tbname WHERE `id`='{$category}'");
+        $parent_row = array(
+            'namespace' => $namespace,
+            'name' => $name,
+            'parent' => $category,
+            'sort_order' => 1,
+            'level' => 0,
+            'description' => $description,
+            'path' => 0
+        );
+        //删除存在的数据
+        $sn = str_replace('\\', '\\\\\\\\', $namespace);
+        $this->db()->exec("DELETE FROM $tbname WHERE `namespace` like '$sn%'");
+        if (!empty($category)) {
+            $parent_category = $this->db()->getRow("SELECT * FROM $tbname WHERE `parent`='{$category}'");
+            $parent_row['path'] = $parent_category['path'] . '-' . $parent_category['id'];
+            $parent_row['level'] = $parent_category['level'] + 1;
+            $parent_row['parent'] = $category;
         }
+
 
         try {
             if (class_exists($namespace)) {
-//                $reflector = new \ReflectionClass($namespace);
-//                $methods = $reflector->getMethods(\ReflectionMethod::IS_PUBLIC);
-//                foreach ($methods as $method) {
-//                    if (endsWith($method->getName(), 'Action')) {
-//                        echo $method->getName();
-//                    }
-//                }
+                
             } else if (endsWith($namespace, 'Controller')) {
                 //扫描整个目录
-                $namespace = stripcslashes($namespace);
-                $controllers = scandir($namespace);                
+                $controllers = scandir($namespace);
+                //插入根节点
+                $this->db()->insert('resources', $parent_row);
+                $parent_id = $this->db()->lastId();
+
                 foreach ($controllers as $filename) {
                     if ($filename == '.' || $filename == '..') {
                         continue;
@@ -93,27 +128,41 @@ ORDER BY sort_order ASC,id DESC");
 
                         $reflector = new \ReflectionClass($namespace . '\\' . $filename);
 
+                        $name = \H1Soft\H\Utils\PHPDoc::findName('authName', $reflector->getDocComment());
+                        $description = \H1Soft\H\Utils\PHPDoc::findName('authDescription', $reflector->getDocComment());
+                        $skipAuth = \H1Soft\H\Utils\PHPDoc::bool('skipAuth', $reflector->getDocComment());
+                        if ($skipAuth) {
+                            continue;
+                        }
+
                         $this->db()->insert('resources', array(
-                            'namespace' => addslashes($namespace . '\\' . $filename),
-                            'parent' => $category,
+                            'namespace' => $namespace . '\\' . $filename,
+                            'parent' => $parent_id,
                             'sort_order' => 1,
-                            'level' => $parent_row['level'],
+                            'level' => $parent_row['level'] + 1,
+                            'name' => $name ? $name : $namespace . '\\' . $filename,
                             'description' => $description,
-                            'path' => $category ? $parent_row['path'] . '-' . $category : 0
+                            'path' => $parent_row['path'] . '-' . $parent_id
                         ));
                         $insert_id = $this->db()->lastId();
-                        $this->db()->update('resources', array('sort_order' => $insert_id), "id=$insert_id");
+                        $cur_class = $this->db()->getRow("select * from `h_resources` where `id`=%d", array('id' => $insert_id));
                         $methods = $reflector->getMethods(\ReflectionMethod::IS_PUBLIC);
                         foreach ($methods as $method) {
                             if (endsWith($method->getName(), 'Action')) {
-
+                                $skipAuth = \H1Soft\H\Utils\PHPDoc::bool('skipAuth', $method->getDocComment());
+                                if ($skipAuth) {
+                                    continue;
+                                }
+                                $name = \H1Soft\H\Utils\PHPDoc::findName('authName', $method->getDocComment());
+                                $description = \H1Soft\H\Utils\PHPDoc::findName('authDescription', $method->getDocComment());
                                 $this->db()->insert('resources', array(
-                                    'namespace' => addslashes($namespace . '\\' . $filename . '::' . $method->getName()),
+                                    'namespace' => $namespace . '\\' . $filename . '::' . $method->getName(),
                                     'parent' => $insert_id,
-                                    'sort_order' => $insert_id,
-                                    'level' => $parent_row['level'] + 1,
+                                    'sort_order' => 1,
+                                    'level' => $cur_class['level'] + 1,
+                                    'name' => $name,
                                     'description' => $description,
-                                    'path' => $parent_row['path'] . '-' . $insert_id
+                                    'path' => $cur_class['path'] . '-' . $insert_id
                                 ));
                             }
                         }
@@ -127,18 +176,58 @@ ORDER BY sort_order ASC,id DESC");
         }
     }
 
-}
+    public function groupAction() {
+        $this->isSuperAdmin();
+        $this->assign('menu_setting', 1);
+        
+        $tbname = $this->db()->tb_name('group');
+        //show resources
+        $groups = $this->db()->query("SELECT * FROM  `$tbname` ");
 
-/*
- * $reflector = new \ReflectionClass('Apps\Backend\Controller\Auth');
-        $methods = $reflector->getMethods(\ReflectionMethod::IS_PUBLIC);
-        foreach ($methods as $method) {
-            if(endsWith($method->getName(), 'Action') ){
-               echo $method->getName();
-            }            
+        $this->saveUrlRef();
+
+
+        $this->render('admin/auth_group', array('list' => $groups));
+    }
+
+    public function addGroupAction() {
+        $this->assign('menu_setting', 1);
+        $this->isSuperAdmin();
+        if ($this->isPost()) {
+            $this->db()->insert('group', array(
+                'name' => $this->post('name'),
+                'description' => $this->post('description'),
+            ));
+            $this->redirect($this->urlRef());
         }
-//        var_dump($reflector->getDocComment());
+    }
 
- */
+    public function modifyGroupAction() {
+        $this->isSuperAdmin();
+        $this->assign('menu_setting', 1);
+        $id = intval($this->get('id'));
+        if ($this->isPost()) {
+            $post = array(
+                'name' => $this->post('name'),             
+                'description' => $this->post('description'),                
+            );
 
+            $this->db()->update('group', $post, "id=$id");
+            $this->redirect($this->urlRef());
+        }
 
+        $tbname = $this->db()->tb_name('group');
+
+        $group = $this->db()->getRow("select * from `$tbname` where `id`=%d", array('id' => $id));
+
+        $this->render('admin/auth_group_modify', array('item' => $group, 'id' => $id));
+    }
+
+    public function deleteGroupAction() {
+        $this->isSuperAdmin();
+        $id = intval($this->get('id'));
+        $this->db()->delete('group', "id='$id'");
+        $this->redirect($this->urlRef());
+    }
+
+}

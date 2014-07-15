@@ -7,6 +7,7 @@
 
 require 'vendor/autoload.php';
 
+date_default_timezone_set('Asia/Shanghai');
 $app = new \H1Soft\H\Web\Application();
 
 $app->run();

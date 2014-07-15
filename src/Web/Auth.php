@@ -19,19 +19,19 @@ class Auth extends \H1Soft\H\Singleton {
     }
 
     public function setId($id) {
-        $this->id = $id;
+        $this->session->set('auth.id',$id);
     }
 
     public function getId() {
-        return $this->id;
+        return $this->session->get('auth.id');
     }
 
     public function setName($name) {
-        $this->name = $name;
+        $this->session->set('auth.name',$name);
     }
 
     public function getName() {
-        return $this->name;
+        return $this->session->get('auth.name');
     }
 
     public function login($username, $password) {
@@ -41,13 +41,14 @@ class Auth extends \H1Soft\H\Singleton {
         //check db
         $db = \H1Soft\H\Db\Db::getConnection();
         $password = \H1Soft\H\Utils\Crypt::password($password);
-        $user = $db->getRow("select * from `h_admin` where username='{$username}' and password='{$password}' ");
+        
+        $user = $db->getOne("admin","username='{$username}' and password='{$password}'");
         if ($user) {
             $this->setId($user['id']);
             $this->setName($user['username']);
-            
-            $this->session->set('auth.id', $this->getId());
-            $this->session->set('auth.name', $this->getName());
+            $db->update('admin',array('last_login'=>time(),'login_ip'=>  Application::app()->request()->ipAddress()),"id='{$user['id']}'");
+//            $this->session->set('auth.id', $this->getId());
+//            $this->session->set('auth.name', $this->getName());
             return true;
         }
         return false;

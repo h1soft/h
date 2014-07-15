@@ -4,9 +4,10 @@ namespace H1Soft\H\Utils;
 
 class Crypt {
 
-   static public function crc32($string)
+   static public function crc32($string,$ys = false)
     {
         $checksum = crc32('h1framework_' . $string);
+        
         if (8 == PHP_INT_SIZE) {
             if ($checksum > 2147483647) {
                 $checksum = $checksum & (2147483647);
@@ -14,6 +15,7 @@ class Crypt {
                 $checksum = $checksum & 2147483647;
             }
         }
+        
         return abs($checksum);
     }
     

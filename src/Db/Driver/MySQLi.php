@@ -6,6 +6,11 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
 
     private $_link;
     private $_cur_result_count;
+    private $_select_str = " * ";
+    private $_where_str;
+    private $_orderby_str;
+    private $_groupby_str;
+    
 
     /**
      * 
@@ -35,20 +40,31 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         //初始化连接
         $this->_initConnection();
     }
-
+    
+    /**
+     * 初始化数据库连接
+     * @throws ErrorException
+     */
     private function _initConnection() {
         $this->_link = new \mysqli($this->_dbconf['host'], $this->_dbconf['username'], $this->_dbconf['password'], $this->_dbconf['database'], $this->_dbconf['port']);
         if ($this->_link->connect_error) {
             throw new ErrorException('Error: Could not make a database link (' . mysqli_connect_errno() . ') ' . mysqli_connect_error());
         }
         $this->_link->set_charset($this->_dbconf['charset']);
-        $this->_link->query("SET SQL_MODE = ''");
+//        $this->_link->query("SET SQL_MODE = ''");
     }
-
+        
+    /**
+     * 
+     * @param type $query
+     * @param type $data
+     * @return type
+     * @throws \ErrorException
+     */
     public function query($query, $data = false) {
         if (is_array($data)) {
-            $query = vsprintf($query, $data);
-        }
+            $query = $this->_buildQueryString($query, $data);            
+        }        
         $result = $this->_link->query($query);
         if (!$this->_link->errno) {
             return $this->resultToArray($result);
@@ -56,6 +72,27 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             throw new \ErrorException('Error: ' . $this->_link->error . '<br />Error No: ' . $this->_link->errno . '<br />' . $query);
         }
     }
+    
+    public function getAll($_tbname,$_where = NULL,  $orderby =NULL){        
+        $_tbname = $this->tb_name($_tbname);       
+        if(!$_where) {
+            $_where = " 1 ";
+        }
+        if($orderby){
+            $orderby = 'order by '.$orderby;
+        }
+        return $this->query("SELECT * FROM $_tbname WHERE $_where $orderby");
+    }
+    
+    public function getOne($_tbname,$_where){
+        if(!$_where) {
+            return NULL;
+        }
+        $_tbname = $this->tb_name($_tbname);
+       
+        return $this->getRow("SELECT * FROM $_tbname WHERE $_where");
+    }
+    
 
     public function getRow($query, $params = MYSQLI_ASSOC, $type = MYSQLI_ASSOC) {
         if (is_array($params)) {
@@ -74,21 +111,26 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
 
     public function exec($query, $data = false) {
         if (is_array($data)) {
-            $query = vsprintf($query, $data);
+            $query = $this->_buildQueryString($query, $data);            
         }
-        return $this->_link->query($query);
+        $this->_link->query($query);
+        $this->_cur_result_count = $this->_link->affected_rows;
+        return $this->_link->affected_rows;
     }
 
     public function startTranscation() {
         $this->_link->autocommit(FALSE);
+        return $this;
     }
 
     public function commit($flags = NULL, $name = NULL) {
         $this->_link->commit($flags, $name);
+        return $this;
     }
 
     public function rollback($flags = NULL, $name = NULL) {
         $this->_link->rollback($flags, $name);
+        return $this;
     }
 
     public function tables() {
@@ -115,9 +157,16 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
     public function count() {
         return $this->_cur_result_count;
     }
+    
+    public function affected_rows() {
+        return $this->_cur_result_count;
+    }
 
     public function tb_name($_tbname) {
         return $this->_dbconf['prefix'] . $_tbname;
+    }
+    public function tbname($_tbname) {
+        $this->tb_name($_tbname);
     }
 
     public function insert($_tbname, $_data) {
@@ -128,15 +177,15 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         $keys = array();
         $vals = array();
         foreach ($_data as $key => $val) {
-            $keys[] = sprintf('`%s`', $key);
-            $vals[] = sprintf('\'%s\'', $val);
+            $keys[] = sprintf('`%s`', $this->escape($key));
+            $vals[] = sprintf("'%s'", $this->escape($val));
         }
-
-        return $this->exec("INSERT INTO `%s` (%s) VALUES (%s)", array(
-                    $_tbname,
-                    join(',', $keys),
-                    join(',', $vals)
+        $query = vsprintf("INSERT INTO `%s` (%s) VALUES (%s)", array(
+            $_tbname,
+            join(',', $keys),
+            join(',', $vals)
         ));
+        return $this->exec($query);
     }
 
     public function update($_tbname, $_data, $_where = false) {
@@ -148,48 +197,49 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
 
         $vals = array();
         foreach ($_data as $key => $val) {
-            $vals[] = sprintf('`%s`=\'%s\'', $key, $val);
+            $vals[] = sprintf('`%s`=\'%s\'', $key, $this->escape($val));
         }
 
         if (!$_where) {
-            return $this->exec("UPDATE `%s` SET %s", array(
-                        $_tbname,
-                        join(',', $vals)
-            ));
+            $query = vsprintf("UPDATE `%s` SET %s", array(
+                $_tbname,
+                join(',', $vals)
+            ));            
+            return $this->exec($query);
         } else {
-//            echo vsprintf("UPDATE `%s` SET %s WHERE %s", array(
-//                        $_tbname,
-//                        join(',', $vals),
-//                        $_where
-//            ));
-            return $this->exec("UPDATE `%s` SET %s WHERE %s", array(
-                        $_tbname,
-                        join(',', $vals),
-                        $_where
+            $query = vsprintf("UPDATE `%s` SET %s WHERE %s", array(
+                $_tbname,
+                join(',', $vals),
+                $_where
             ));
+            
+            return $this->exec($query);
         }
     }
 
     public function delete($_tbname, $_where = false) {
         $_tbname = $this->tb_name($_tbname);
         if (!$_where) {
-            return $this->exec("DELETE FROM `%s`", array(
-                        $_tbname                        
+            $query = vsprintf("DELETE FROM `%s`", array(
+                $_tbname
             ));
-        }else{
-            return $this->exec("DELETE FROM `%s` WHERE %s", array(
-                        $_tbname,
-                        $_where
-            ));
+            return $this->exec($query);
+        } else {
+            $query = vsprintf("DELETE FROM `%s` WHERE %s", array(
+                $_tbname,
+                $_where
+            ));         
+            return $this->exec($query);
         }
     }
-
+    
+    
     public function error() {
         
     }
 
     public function escape($str) {
-        return mysqli_real_escape_string($str);
+        return $this->_link->escape_string($str);
     }
 
     public function getCharset() {
@@ -212,6 +262,22 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         if (is_resource($this->_link)) {
             $this->_link->close();
         }
+    }
+
+    private function _buildQueryString($query, $data) {
+        if ($data && is_array($data)) {
+            $patterns = array();
+
+            $replacements = array();
+
+            foreach ($data as $key => $val) {
+                $patterns[] = "/:{$key}/";
+                $replacements[] = $this->escape($val);
+            }
+
+            $query = preg_replace($patterns, $replacements, $query);
+        }
+        return $query;
     }
 
     function __destruct() {

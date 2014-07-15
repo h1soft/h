@@ -43,4 +43,29 @@ class Formater {
         }
     }
 
+    /**
+     * 格式化日期 e.g. 3 days ago, or 5 minutes ago to a maximum of a week ago
+     *
+     * @param int $time unix timestamp
+     * @param string format of time (use the constant fdate_format or ftime_format)
+     */
+    function time_elapsed($time = null, $format) {
+
+        $diff = TIME - $time;
+        if ($diff < MINUTE)
+            return $diff . " " . get_msg('seconds_ago');
+        elseif ($diff < HOUR)
+            return ceil($diff / 60) . " " . get_msg('minutes_ago');
+        elseif ($diff < 12 * HOUR)
+            return ceil($diff / 3600) . " " . get_msg('hours_ago');
+        elseif ($diff < DAY)
+            return get_msg('today') . " " . strftime(TIME_FORMAT, $time);
+        elseif ($diff < DAY * 2)
+            return get_msg('yesterday') . " " . strftime(TIME_FORMAT, $time);
+        elseif ($diff < WEEK)
+            return ceil($diff / DAY) . " " . get_msg('days_ago') . " " . strftime(TIME_FORMAT, $time);
+        else
+            return strftime($format, $time);
+    }
+
 }

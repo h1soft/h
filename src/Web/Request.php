@@ -2,118 +2,110 @@
 
 namespace H1Soft\H\Web;
 
-class Request {
+class Request extends \H1Soft\H\Singleton {
 
-    private $_gets = array();
-    private $_posts = array();
     private $_segments = array();
     private $_params = array();
     
-    private $_cookies;
+    public function init() {
+        if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
+            if (isset($_GET)) {
+                $_GET = Security::stripSlashes($_GET);
+            }
+            if (isset($_POST)) {
+                $_POST = Security::stripSlashes($_POST);
+            }
+            if (isset($_REQUEST)) {
+                $_REQUEST = Security::stripSlashes($_REQUEST);
+            }
+            if (isset($_COOKIE)) {
+                $_COOKIE = Security::stripSlashes($_COOKIE);
+            }
+        }
 
-    public function __construct() {
-        $_server = filter_input_array(INPUT_SERVER,FILTER_SANITIZE_MAGIC_QUOTES);
-        foreach ($_server as $key => $value) {
+        foreach ($_SERVER as $key => $value) {
             $this->$key = $value;
         }
-        
-        $_env = filter_input_array(INPUT_ENV,FILTER_SANITIZE_MAGIC_QUOTES);
-        foreach ($_env as $key => $value) {
+
+        foreach ($_ENV as $key => $value) {
             $this->$key = $value;
         }
-        
-        $_post = filter_input_array(INPUT_POST,FILTER_SANITIZE_MAGIC_QUOTES);
-        if($_post) {
-            foreach ($_post as $key => $value) {
-                $this->_posts[$key] = $value;
-            }
-        }
-        $_get = filter_input_array(INPUT_GET,FILTER_SANITIZE_MAGIC_QUOTES);
-        if($_get){
-            foreach ($_get as $key => $value) {
-                $this->_gets[$key] = $value;
-            }
-        }
-        
-        $_cookie = filter_input_array(INPUT_COOKIE,FILTER_SANITIZE_MAGIC_QUOTES);
-        if($_cookie){
-            foreach ($_cookie as $key => $value) {
-                $this->_cookies[$key] = $value;
-            }
-        }
-//        unset($_server);
     }
-
-    public function ipAddress() {
-        return $this->REMOTE_ADDR;
+      
+    /**
+     * 获取客户端IP地址
+     * @return string 当前IP地址
+     */
+    public function ipAddress() {        
+        return $this->REMOTE_ADDR ? $this->REMOTE_ADDR : $this->HTTP_X_FORWARDED_FOR;
     }
-
+    
     public function userAgent() {
         return $this->HTTP_HOST;
     }
-
-    public function language() {
-        return $this->HTTP_HOST;
-    }
-
     public function requestUri() {
         return $this->REQUEST_URI;
     }
-    
+
     public function curUrl() {
         $pageURL = 'http://';
         if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {
             $pageURL = "https://";
         }
         if ($_SERVER["SERVER_PORT"] != "80") {
-            $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+            $pageURL .= $_SERVER["SERVER_NAME"] . ":" . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
         } else {
-            $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
-        }        
+            $pageURL .= $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
+        }
         return $pageURL;
     }
+    
+    /**
+     * 
+     * @param string $_key 
+     * @param NULL $defaultValue
+     * @return $_GET or NULL
+     */
+    public function get($_key, $defaultValue = null) {
+        if (isset($_GET[$_key])) {
+            return $_GET[$_key];
+        } else if (isset($this->_params[$_key])) {
+            return $this->_params[$_key];
+        }
+        return $defaultValue;
+    }
 
-    public function get($_key) {
-        if (isset($this->_gets[$_key])) {
-            return $this->_gets[$_key];
-        }else if (isset($this->_params[$_key])) {
-            return $this->_params[$_key];
+    public function post($_key, $defaultValue = null) {
+        if (isset($_POST[$_key])) {
+            return $_POST[$_key];
         }
-        return NULL;
+        return $defaultValue;
     }
-    
-    public function post($_key) {
-        if (isset($this->_posts[$_key])) {
-            return $this->_posts[$_key];
-        }
-        return NULL;
-    }
-    
-    
-    public function get_post($_key) {
+
+    public function get_post($_key, $defaultValue = null) {
         if (isset($this->_params[$_key])) {
             return $this->_params[$_key];
         }
-        if (isset($this->_gets[$_key])) {
-            return $this->_gets[$_key];
+        if (isset($_GET[$_key])) {
+            return $_GET[$_key];
         }
-        if (isset($this->_posts[$_key])) {
-            return $this->_posts[$_key];
+        if (isset($_POST[$_key])) {
+            return $_POST[$_key];
         }
-        return NULL;
+        return $defaultValue;
     }
-    
-    public function post_get($_key) {
-        if (isset($this->_posts[$_key])) {
-            return $this->_posts[$_key];
+
+    public function post_get($_key, $defaultValue = null) {
+        if (isset($_POST[$_key])) {
+            return $_POST[$_key];
         }
         if (isset($this->_params[$_key])) {
             return $this->_params[$_key];
         }
-        if (isset($this->_gets[$_key])) {
-            return $this->_gets[$_key];
-        }        
-        return NULL;
+        if (isset($_GET[$_key])) {
+            return $_GET[$_key];
+        }
+        return $defaultValue;
     }
 
     public function segment($_key) {
@@ -126,45 +118,67 @@ class Request {
     public function setSegment($_segments) {
         $this->_segments = $_segments;
     }
-    
-    public function param($_key) {
+
+    public function param($_key, $defaultValue = null) {
         if (isset($this->_params[$_key])) {
             return $this->_params[$_key];
         }
-        return NULL;
+        return $defaultValue;
     }
-    
+
     public function setParams($_params) {
         $this->_params = $_params;
     }
-    
+
     public function getParams() {
-        $this->_params;
+        return $this->_params;
     }
-    
-    //Utils
 
-    function get_ip() {
-        if (!defined("IP")) {
-            $ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
-            if (!preg_match("^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}^", $ip)) {
-                $ip = null;
-            }
-            define("IP", $ip);
+    public function getParam($name, $defaultValue = null) {
+        return isset($_GET[$name]) ? $_GET[$name] : (isset($_POST[$name]) ? $_POST[$name] : $defaultValue);
+    }
+
+    public function getQuery($name, $defaultValue = null) {
+        return isset($_GET[$name]) ? $_GET[$name] : $defaultValue;
+    }
+
+    public function getPost($name, $defaultValue = null) {
+        return isset($_POST[$name]) ? $_POST[$name] : $defaultValue;
+    }
+
+    public function getQueryString() {
+        return isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+    }
+
+    public function isHttps() {
+        return isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https';
+    }
+
+    public function getRequestType() {
+        if (isset($_POST['_method'])) {
+            return strtoupper($_POST['_method']);
         }
-        return IP;
+
+        return strtoupper(isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
     }
 
-    /**
-     * Return true if $ip is a valid ip
-     */
-    function is_ip($ip) {
-        return preg_match("^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}^", $ip);
+    public function getUrlReferrer() {
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
     }
 
-    /**
-     * Return the browser information of the logged user
-     */
+    public function getUserAgent() {
+        return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
+    }
+
+    public function getUserHostAddress() {
+        return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+    }
+
+    public function getAcceptTypes() {
+        return isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : null;
+    }
+  
+  
     function get_browser_info() {
 
         if (!isset($GLOBALS['rain_browser_info'])) {
@@ -180,32 +194,80 @@ class Request {
         }
         return $GLOBALS['rain_browser_info'];
     }
-    
+
     public function isPost() {
-        if($this->REQUEST_METHOD =="POST"){
+        if ($this->REQUEST_METHOD == "POST") {
             return true;
         }
         return false;
     }
-    
+
     public function isGet() {
-        if($this->REQUEST_METHOD =="GET"){
+        if ($this->REQUEST_METHOD == "GET") {
             return true;
         }
         return false;
     }
-    
+
     public function isPut() {
-        if($this->REQUEST_METHOD =="PUT" || $this->_METHOD || $this->_METHOD == "PUT"){
+        if ($this->REQUEST_METHOD == "PUT" || $this->_METHOD || $this->_METHOD == "PUT") {
             return true;
         }
         return false;
     }
+
     public function isDelete() {
-        if($this->REQUEST_METHOD =="DELETE" || $this->_METHOD || $this->_METHOD == "DELETE"){
+        if ($this->REQUEST_METHOD == "DELETE" || $this->_METHOD || $this->_METHOD == "DELETE") {
             return true;
         }
         return false;
+    }
+
+    function xssClean($data, $htmlentities = 0) {
+        $htmlentities && $data = htmlentities($data, ENT_QUOTES, 'utf-8');
+        // Fix &entity\n;
+        $data = str_replace(array('&amp;', '&lt;', '&gt;'), array('&amp;amp;', '&amp;lt;', '&amp;gt;'), $data);
+        $data = preg_replace('/(&#*\w+)[\x00-\x20]+;/u', '$1;', $data);
+        $data = preg_replace('/(&#x*[0-9A-F]+);*/iu', '$1;', $data);
+        $data = html_entity_decode($data, ENT_COMPAT, 'UTF-8');
+
+        // Remove any attribute starting with "on" or xmlns
+        $data = preg_replace('#(<[^>]+?[\x00-\x20"\'])(?:on|xmlns)[^>]*+>#iu', '$1>', $data);
+
+        // Remove javascript: and vbscript: protocols
+        $data = preg_replace('#([a-z]*)[\x00-\x20]*=[\x00-\x20]*([`\'"\\\\]*)[\x00-\x20]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iu', '$1=$2nojavascript...', $data);
+        $data = preg_replace('#([a-z]*)[\x00-\x20]*=([\'"\\\\]*)[\x00-\x20]*v[\x00-\x20]*b[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iu', '$1=$2novbscript...', $data);
+        $data = preg_replace('#([a-z]*)[\x00-\x20]*=([\'"\\\\]*)[\x00-\x20]*-moz-binding[\x00-\x20]*:#u', '$1=$2nomozbinding...', $data);
+
+        // Only works in IE: <span style="width: expression(alert('Ping!'));"></span>
+        $data = preg_replace('#(<[^>]+?)style[\x00-\x20]*=[\x00-\x20]*[`\'"\\\\]*.*?expression[\x00-\x20]*\([^>]*+>#i', '$1>', $data);
+        $data = preg_replace('#(<[^>]+?)style[\x00-\x20]*=[\x00-\x20]*[`\'"\\\\]*.*?behaviour[\x00-\x20]*\([^>]*+>#i', '$1>', $data);
+        $data = preg_replace('#(<[^>]+?)style[\x00-\x20]*=[\x00-\x20]*[`\'"\\\\]*.*?s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:*[^>]*+>#iu', '$1>', $data);
+
+        // Remove namespaced elements (we do not need them)
+        $data = preg_replace('#</*\w+:\w[^>]*+>#i', '', $data);
+
+        do {
+            // Remove really unwanted tags
+            $old_data = $data;
+            $data = preg_replace('#</*(?:applet|b(?:ase|gsound|link)|embed|frame(?:set)?|i(?:frame|layer)|l(?:ayer|ink)|meta|object|s(?:cript|tyle)|title|xml)[^>]*+>#i', '', $data);
+        } while ($old_data !== $data);
+
+
+        return $this->filter_remote_img_type($data, FALSE);
+    }
+
+    function filter_remote_img_type($text, $bbcode = TRUE) {
+        $pattern = $bbcode ? "/\[img[^\]]*\]\s*(.*?)+\s*\[\/img\]/is" : "/<img[^>]+src=[\'|\"]([^\'|\"]+)[\'|\"][^>]*[\/]?>/is";
+        preg_match_all($pattern, $text, $matches);
+        foreach ($matches[1] as $k => $src) {
+            $data = get_headers($src);
+            $header_str = implode('', $data);
+            if (FALSE === strpos($header_str, 'Content-Type: image') || FALSE !== strpos($header_str, 'HTTP/1.1 401') || FALSE !== strpos($header_str, 'HTTP/1.1 404')) {
+                $text = str_replace($matches[0][$k], '', $text);
+            }
+        }
+        return $text;
     }
 
 }

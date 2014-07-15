@@ -42,6 +42,7 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
             $this->_initTemplateEngine();
             $this->_engine->setArray($this->_tplVars);
             $this->_engine->set('HVERSION', HVERSION);
+            $this->_engine->set('BASEPATH', $this->basePath);
             return $this->_engine->render($tplFileName, $data, $output);
         } catch (Twig_Error_Loader $e) {
             print_r($e);
@@ -83,12 +84,12 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
         return Application::request();
     }
 
-    public function get($_key) {
-        return Application::request()->get($_key);
+    public function get($_key, $defaultValue = NULL) {        
+        return Application::request()->get($_key,$defaultValue);
     }
 
-    public function post($_key) {
-        return Application::request()->post($_key);
+    public function post($_key, $defaultValue = NULL) {
+        return Application::request()->getPost($_key,$defaultValue);
     }
 
     public function query($_key, $_rev = true) {
@@ -97,9 +98,9 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
         }
         return Application::request()->post_get($_key);
     }
-    
-    public function param($_key) {      
-        return Application::request()->param($_key);
+
+    public function param($_key) {
+        return Application::request()->getParam($_key);
     }
 
     public function db($_dbname = 'db') {
@@ -107,7 +108,12 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
     }
 
     public function redirect($url, $httpCode = 302) {
-        $url = url_to($url);
+        if (startWith($url, 'http://') || startWith($url, 'https://')) {
+            
+        } else {
+            $url = url_to($url);
+        }
+
         if ($httpCode == 301) {
             header('HTTP/1.1 301 Moved Permanently');
         }
@@ -123,18 +129,22 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
         }
     }
 
-    public function isAdmin() {
+    public function isAdmin($_return = false) {
         $auth = \H1Soft\H\Web\Auth::getInstance();
-
+        if ($_return) {
+            return $auth->isAdmin();
+        }
         if (!$auth->isAdmin()) {
             //redirect
             $this->redirect('auth/invalid');
         }
     }
-    
-    public function isSuperAdmin() {
-        $auth = \H1Soft\H\Web\Auth::getInstance();
 
+    public function isSuperAdmin($_return = false) {
+        $auth = \H1Soft\H\Web\Auth::getInstance();
+        if ($_return) {
+            return $auth->isAdmin();
+        }
         if (!$auth->isSuperAdmin()) {
             //redirect
             $this->redirect('auth/invalid');
@@ -173,13 +183,38 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
         return Application::session();
     }
 
-    public function setFlashMessage($message) {
+    public function saveUrlRef($url = NULL) {
+        if ($url) {
+            Application::session()->set('hurlref', $url);
+        } else {
+            Application::session()->set('hurlref', $this->req()->curUrl());
+        }
+        return Application::session()->get('hurlref');
+    }
+
+    public function urlRef() {
+        $rtn = Application::session()->get('hurlref');
+        return $rtn ? $rtn : Application::app()->request()->curUrl();
+    }
+
+    public function showFlashMessage($message, $code = H_ERROR, $url = NULL) {
+        if (!$url) {
+            $url = $this->req()->curUrl();
+        }
         Application::session()->set('hflash', $message);
+        Application::session()->set('hcode', $code);
+        $this->redirect($url);
+    }
+
+    public function setFlashMessage($message, $code = H_ERROR) {
+        Application::session()->set('hflash', $message);
+        Application::session()->set('hcode', $code);
     }
 
     public function getFlashMessage($default = "") {
         $message = Application::session()->get('hflash');
         Application::session()->remove('hflash');
+        Application::session()->remove('hcode');
         return $message ? $message : $default;
     }
 
