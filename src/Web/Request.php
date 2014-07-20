@@ -6,7 +6,7 @@ class Request extends \H1Soft\H\Singleton {
 
     private $_segments = array();
     private $_params = array();
-    
+
     public function init() {
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
             if (isset($_GET)) {
@@ -31,18 +31,19 @@ class Request extends \H1Soft\H\Singleton {
             $this->$key = $value;
         }
     }
-      
+
     /**
      * 获取客户端IP地址
      * @return string 当前IP地址
      */
-    public function ipAddress() {        
+    public function ipAddress() {
         return $this->REMOTE_ADDR ? $this->REMOTE_ADDR : $this->HTTP_X_FORWARDED_FOR;
     }
-    
+
     public function userAgent() {
         return $this->HTTP_HOST;
     }
+
     public function requestUri() {
         return $this->REQUEST_URI;
     }
@@ -59,7 +60,7 @@ class Request extends \H1Soft\H\Singleton {
         }
         return $pageURL;
     }
-    
+
     /**
      * 
      * @param string $_key 
@@ -177,8 +178,7 @@ class Request extends \H1Soft\H\Singleton {
     public function getAcceptTypes() {
         return isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : null;
     }
-  
-  
+
     function get_browser_info() {
 
         if (!isset($GLOBALS['rain_browser_info'])) {
@@ -218,6 +218,13 @@ class Request extends \H1Soft\H\Singleton {
 
     public function isDelete() {
         if ($this->REQUEST_METHOD == "DELETE" || $this->_METHOD || $this->_METHOD == "DELETE") {
+            return true;
+        }
+        return false;
+    }
+
+    public function isAjax() {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == "XMLHttpRequest") {
             return true;
         }
         return false;

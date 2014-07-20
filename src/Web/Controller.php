@@ -166,6 +166,9 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
     protected function isDelete() {
         return $this->req()->isDelete();
     }
+    protected function isAjax() {
+        return $this->req()->isAjax();
+    }
 
     /**
      * 

@@ -23,10 +23,11 @@ class Router {
 //        echo $this->defaultApp, '<br/>';
 //        echo $this->defaultController, '<br/>';
 //        echo $this->defaultAction, '<br/>';
-        if(!$this->_cobj_ref){
+//        print_r($_GET);
+        if (!$this->_cobj_ref) {
             $this->_notfound();
         }
-        
+
         $this->_cobj_ref->init();
 
         $this->_cobj_ref->before();
@@ -49,7 +50,7 @@ class Router {
         $this->_rewrite();
 
         $this->_parseUrl();
-
+        
         $this->defaultApp = Config::get('router.app', $this->defaultApp);
         $this->defaultController = isset($this->application->router['controller']) ? $this->application->router['controller'] : $this->defaultController;
         $this->defaultAction = isset($this->application->router['action']) ? $this->application->router['action'] . 'Action' : $this->defaultAction . 'Action';
@@ -186,7 +187,7 @@ class Router {
         //path_info
         if (isset($_SERVER['PATH_INFO'])) {
             $_GET['r'] = $_SERVER['PATH_INFO'];
-        }
+        }        
         if (isset($_GET['r'])) {
 
             $r = str_replace($this->suffix, '', $_GET['r']);
@@ -195,9 +196,9 @@ class Router {
             } else {
                 $this->requestUri = explode('/', $this->xssClean(trim($r, '/')));
             }
-            $this->application->request()->setSegment($this->requestUri);
+            $this->application->request()->setSegment($this->requestUri);            
         } else {
-            $this->requestUri = "";
+            $this->requestUri = "";            
         }
     }
 
@@ -209,8 +210,12 @@ class Router {
 
         foreach ($rewrites as $rewrite => $value) {
             $rewrite = str_replace('/', '\/', $rewrite);
-
+            
+            $requestUri = str_replace(Application::basePath(),'',$requestUri);
+//            echo $rewrite;
             if (preg_match("/$rewrite/i", $requestUri, $paramValues)) {
+//                print_r($paramValues);
+//                die;
                 $paramNum = 0;
                 if (preg_match_all("/{[0-9]}/", $value, $paramNumRs)) {
                     if (isset($paramNumRs[0])) {

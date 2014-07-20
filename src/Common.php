@@ -154,7 +154,8 @@ function url_for($_url, $_params = NULL, $_type = false) {
 function url_to($_url, $_params = NULL, $_type = false) {
     $app = strtolower(H1Soft\H\Web\Application::app()->router()->getAppName());
 
-    if ($app == H1Soft\H\Web\Application::app()->router()->getAppName() || H1Soft\H\Web\Application::app()->router()->getAppName() == \H1Soft\H\Web\Config::get('router.app')) {
+    if ($app == H1Soft\H\Web\Application::app()->router()->getAppName() 
+            || H1Soft\H\Web\Application::app()->router()->getAppName() == \H1Soft\H\Web\Config::get('router.app')) {
         $app = '';
     } else {
         //Route Alias
@@ -167,12 +168,16 @@ function url_to($_url, $_params = NULL, $_type = false) {
         }
         $app = '/' . $app;
     }
-
+    
+    if(startWith($_url, '/')){
+        $_url = ltrim($_url,'/');
+        $app = '';
+    }
     if (H1Soft\H\Web\Config::get("router.uri_protocol") == "PATH_INFO") {
         $_type = true;
     }
     $showscriptname = H1Soft\H\Web\Config::get('router.showscriptname', 'index.php');
-
+    
     $querystring = "";
     if (is_array($_params) && $_type == false) {
         if ($showscriptname) {

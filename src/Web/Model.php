@@ -17,4 +17,5 @@ class Model extends \H1Soft\H\Singleton{
     public function db($_dbname = 'db') {
         return \H1Soft\H\Db\Db::getConnection($_dbname);
     }
+    
 }
