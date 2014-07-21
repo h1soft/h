@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the HMVC package.
+ *
+ * (c) Allen Niu <h@h1soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace H1Soft\H\Web;
 
@@ -6,14 +14,14 @@ use \H1Soft\H\Web\Application;
 
 abstract class Controller extends \H1Soft\H\Collections\HArray {
 
-    private $_viewScripts = array();
-    private $_viewCss = array();
+    protected $_viewScripts = array();
+    protected $_viewCss = array();
     //template engine
-    private $_engine;
+    protected $_engine;
     public $request;
     public $rootPath;
     public $basePath;
-    private $_tplVars = array();
+    protected $_tplVars = array();
 
     public function __construct() {
         $this->request = Application::request();
@@ -43,6 +51,8 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
             $this->_engine->setArray($this->_tplVars);
             $this->_engine->set('HVERSION', HVERSION);
             $this->_engine->set('BASEPATH', $this->basePath);
+            $this->_engine->set('cssFiles', $this->_viewCss);
+            $this->_engine->set('jsFiles', $this->_viewScripts);
             return $this->_engine->render($tplFileName, $data, $output);
         } catch (Twig_Error_Loader $e) {
             print_r($e);

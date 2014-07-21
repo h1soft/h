@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the HMVC package.
+ *
+ * (c) Allen Niu <h@h1soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * 判断开始字符串
@@ -125,7 +133,15 @@ function _getRows($filename, $start, $offset = 0) {
     if ($offset == 0 || (($start + $offset) > $rowsNum)) {
         $offset = $rowsNum - $start;
     }
-    $fileList = "<?php\n\n\t........\n\n";
+    $fileList = "<?php
+/*
+ * This file is part of the HMVC package.
+ *
+ * (c) Allen Niu <h@h1soft.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */\n\n\t........\n\n";
     for ($i = $start; $max = $start + $offset, $i < $max; $i++) {
         $fileList .= $rows[$i];
     }
