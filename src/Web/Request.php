@@ -49,7 +49,11 @@ class Request extends \H1Soft\H\Singleton {
     }
 
     public function userAgent() {
-        return $this->HTTP_HOST;
+        return $this->HTTP_USER_AGENT;
+    }
+    
+    public function language() {
+        return $this->HTTP_ACCEPT_LANGUAGE;
     }
 
     public function requestUri() {

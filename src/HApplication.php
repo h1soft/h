@@ -22,7 +22,7 @@ define('START_MEMORY_USAGE', memory_get_usage());
 
 define('DS', DIRECTORY_SEPARATOR);
 
-define('HVERSION', 'HMVC v1.2');
+define('HVERSION', 'HMVC v1.2.1');
 
 define('H_ERROR', 'danger');
 

@@ -1,18 +1,16 @@
 <?php
-/*
- * This file is part of the HMVC package.
- *
- * (c) Allen Niu <h@h1soft.net>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 namespace H1Soft\H\Web;
 
+/**
+ * 
+ */
 class Application extends \H1Soft\H\HApplication {
 
-    // H1Soft\H\Web\Route
+   /**
+    *
+    * @var  H1Soft\H\Web\Route
+    */
     private static $_router;
     private static $request;
     private static $response;
@@ -22,12 +20,39 @@ class Application extends \H1Soft\H\HApplication {
     private static $_app;
     public static $basePath;
     private static $_psr_loader;
-    
     private static $_session;
+    protected $bootstrap;
+    protected $bootstrapObj;
 
     public function __construct() {
         parent::__construct();
         self::$_app = $this;
+    }
+    
+    /**
+     * 
+     * @param string $namespace
+     * @return \H1Soft\H\Web\Application
+     */
+    public function bootstrap($namespace) {
+        $this->bootstrap = $namespace;
+        return $this;
+    }
+    
+    private function startBootstrap() {
+        if ($this->bootstrap &&
+                class_exists($this->bootstrap)) {
+            $className = $this->bootstrap;
+            $this->bootstrapObj = new $className();
+            $this->bootstrapObj->ApplicationStart();
+        }
+    }
+
+    private function endBootstrap() {
+        if ($this->bootstrap &&
+                $this->bootstrapObj) {            
+            $this->bootstrapObj->ApplicationEnd();
+        }
     }
 
     public function run() {
@@ -61,24 +86,44 @@ class Application extends \H1Soft\H\HApplication {
         set_error_handler("hmvc_error");
         set_exception_handler("hmvc_exceptionHandler");
 
-        self::$_router->dispatch();
-    }
+        $this->startBootstrap();
 
+        self::$_router->dispatch();
+        
+        $this->endBootstrap();
+    }
+    
+    /**
+     * 
+     * @return \H1Soft\H\Web\Request
+     */
     public static function request() {
         return self::$request;
     }
-
+    
+    /**
+     * 
+     * @return \H1Soft\H\Web\Response
+     */
     public static function response() {
         return self::$response;
     }
-    
+
+    /**
+     * 
+     * @return \H1Soft\H\Web\Session
+     */
     public static function session() {
-        if(!self::$_session){
-            self::$_session = Session::getInstance();            
+        if (!self::$_session) {
+            self::$_session = Session::getInstance();
         }
         return self::$_session;
     }
-
+    
+    /**
+     * 
+     * @return \H1Soft\H\Web\Router
+     */
     public static function router() {
         return self::$_router;
     }
@@ -90,7 +135,7 @@ class Application extends \H1Soft\H\HApplication {
     public static function etcPath() {
         return self::$etcPath;
     }
-    
+
     public static function basePath() {
         return self::$basePath;
     }
@@ -98,7 +143,7 @@ class Application extends \H1Soft\H\HApplication {
     public static function app() {
         return self::$_app;
     }
-    
+
     public static function db($_dbname = 'db') {
         return \H1Soft\H\Db\Db::getConnection($_dbname);
     }

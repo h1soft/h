@@ -28,6 +28,14 @@ class Session extends \H1Soft\H\Singleton {
         }
     }
     
+    public function hasKey($_name) {
+        if(isset($_SESSION[$_name])){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     public function remove($_name) {
         unset($_SESSION[$_name]);
     }
