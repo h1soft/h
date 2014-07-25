@@ -28,11 +28,37 @@ class File {
         return @mkdir($dir, $mode);
     }
 
-    static public function getFileNames($dirPath = ".") {
+    static public function getFileNames($dir = ".") {
 
-        $files = array();
-
-        return $files;
+        if (!file_exists($dir) || !is_dir($dir)) {
+            return array();
+        }
+        $dirPath = $dir;
+        $dirList = array();
+        $dir = opendir($dir);
+        while (false !== ($file = readdir($dir))) {
+            if ($file !== '.' && $file !== '..' && is_file($dirPath . $file)) {
+                $dirList[] = $file;
+            }
+        }
+        closedir($dir);
+        return $dirList;
+    }
+    
+    static public function listDir($dir) {        
+        if (!file_exists($dir) || !is_dir($dir)) {
+            return '';
+        }
+        $dirPath = $dir;
+        $dirList = array();
+        $dir = opendir($dir);
+        while (false !== ($file = readdir($dir))) {
+            if ($file !== '.' && $file !== '..' && is_dir($dirPath . $file)) {
+                $dirList[] = $file;
+            }
+        }
+        closedir($dir);
+        return $dirList;
     }
 
     /**

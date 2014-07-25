@@ -1,12 +1,4 @@
 <?php
-/*
- * This file is part of the HMVC package.
- *
- * (c) Allen Niu <h@h1soft.net>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 namespace H1Soft\H\Db\Driver;
 
@@ -65,6 +57,10 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         $this->_link->set_charset($this->_dbconf['charset']);
 //        $this->_link->query("SET SQL_MODE = ''");
     }
+    
+    public function getLink(){
+        return $this->_link;
+    }
 
     /**
      * 
@@ -101,7 +97,12 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             return NULL;
         }
         $_tbname = $this->tb_name($_tbname);
-
+        if(is_array($_where)){
+            foreach ($_where as $key => $value) {
+                $this->where($key, $value);
+            }
+            return $this->getRow("SELECT * FROM $_tbname {$this->_wheres}");
+        }
         return $this->getRow("SELECT * FROM $_tbname WHERE $_where");
     }
 
