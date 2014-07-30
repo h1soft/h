@@ -57,8 +57,8 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         $this->_link->set_charset($this->_dbconf['charset']);
 //        $this->_link->query("SET SQL_MODE = ''");
     }
-    
-    public function getLink(){
+
+    public function getLink() {
         return $this->_link;
     }
 
@@ -97,11 +97,14 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             return NULL;
         }
         $_tbname = $this->tb_name($_tbname);
-        if(is_array($_where)){
+        if (is_array($_where)) {
             foreach ($_where as $key => $value) {
                 $this->where($key, $value);
             }
-            return $this->getRow("SELECT * FROM $_tbname {$this->_wheres}");
+
+            $this->lastSQL = "SELECT * FROM $_tbname {$this->_wheres}";
+            $this->_resetSql();
+            return $this->getRow($this->lastSQL);
         }
         return $this->getRow("SELECT * FROM $_tbname WHERE $_where");
     }
@@ -204,8 +207,10 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             join(',', $keys),
             join(',', $vals)
         ));
+        $this->lastSQL = $query;
         return $this->exec($query);
     }
+
     public function replace($_tbname, $_data) {
         if (empty($_data) && !is_array($_data)) {
             return NULL;
@@ -224,7 +229,6 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         ));
         return $this->exec($query);
     }
-    
 
     public function update($_tbname, $_data, $_where = false) {
         if (!empty($_data) && !is_array($_data)) {
@@ -245,12 +249,20 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             ));
             return $this->exec($query);
         } else {
-            $query = vsprintf("UPDATE `%s` SET %s WHERE %s", array(
+            if (is_array($_where)) {
+                foreach ($_where as $key => $value) {
+                    $this->where($key, $value);
+                }
+                $_where = $this->_wheres;
+            } else {
+                $_where = " WHERE " . $_where;
+            }
+            $query = vsprintf("UPDATE `%s` SET %s %s", array(
                 $_tbname,
                 join(',', $vals),
                 $_where
             ));
-
+            $this->_resetSql();
             return $this->exec($query);
         }
     }
@@ -261,12 +273,23 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             $query = vsprintf("DELETE FROM `%s`", array(
                 $_tbname
             ));
+            $this->lastSQL = $query;
             return $this->exec($query);
         } else {
-            $query = vsprintf("DELETE FROM `%s` WHERE %s", array(
+            if (is_array($_where)) {
+                foreach ($_where as $key => $value) {
+                    $this->where($key, $value);
+                }
+                $_where = $this->_wheres;
+            } else {
+                $_where = " WHERE " . $_where;
+            }            
+            $query = vsprintf("DELETE FROM `%s` %s", array(
                 $_tbname,
                 $_where
             ));
+            $this->lastSQL = $query;
+            $this->_resetSql();
             return $this->exec($query);
         }
     }
@@ -329,7 +352,6 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         return $this->lastSQL;
     }
 
-    
     public function count($tableName = NULL) {
         $tableName = $this->_buildTableName($tableName);
         $count = 0;
@@ -337,9 +359,9 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             $this->_select_cols = "COUNT(*) as rowcount";
         }
         if ($tableName) {
-            if($this->_tables){
+            if ($this->_tables) {
                 $this->_tables = "{$this->_tables},$tableName";
-            }else{
+            } else {
                 $this->_tables = "$tableName";
             }
             $this->_buildARSelect();
@@ -347,7 +369,7 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
             if ($result && isset($result[0])) {
                 $count = $result[0];
             }
-        } else {            
+        } else {
             $this->_buildARSelect();
             $result = $this->getRow($this->lastSQL, MYSQLI_NUM);
             if ($result && isset($result[0])) {
@@ -403,20 +425,23 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         return $this;
     }
 
-    public function where($name, $value) {
+    public function where($name, $value,$syk=true) {
+        if($syk){
+            $name = "`$name`";
+        }
         if (empty($this->_wheres)) {
-            $this->_wheres = " WHERE `$name`='{$this->escape($value)}' ";
+            $this->_wheres = " WHERE $name='{$this->escape($value)}' ";
         } else {
-            $this->_wheres .= " AND `$name`='{$this->escape($value)}' ";
+            $this->_wheres .= " AND $name='{$this->escape($value)}' ";
         }
         return $this;
     }
 
     public function or_where($name, $value) {
         if (empty($this->_wheres)) {
-            $this->_wheres = " WHERE `$name`='{$this->escape($value)}' ";
+            $this->_wheres = " WHERE $name='{$this->escape($value)}' ";
         } else {
-            $this->_wheres .= " OR `$name`='{$this->escape($value)}' ";
+            $this->_wheres .= " OR $name='{$this->escape($value)}' ";
         }
         return $this;
     }
@@ -440,16 +465,16 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         $this->_bulidLike($name, $value, 'NOT LIKE', 'OR');
         return $this;
     }
-    
+
     public function order_by($name, $value = "ASC") {
         if (empty($this->_groupby)) {
-            $this->_orderby = " ORDER BY `$name` $value";
+            $this->_orderby = " ORDER BY $name $value";
         } else {
-            $this->_orderby .= ",`$name` $value ";
+            $this->_orderby .= ",$name $value ";
         }
         return $this;
     }
-    
+
     public function group_by($name) {
         if (empty($this->_groupby)) {
             $this->_groupby = " GROUP BY `$name`";
@@ -461,9 +486,9 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
 
     private function _bulidLike($name, $value, $type = 'LIKE', $eh = 'AND') {
         if (empty($this->_wheres)) {
-            $this->_wheres = " WHERE `$name` $type '{$this->escape($value)}' ";
+            $this->_wheres = " WHERE $name $type '{$this->escape($value)}' ";
         } else {
-            $this->_wheres .= " $eh `$name` $type '{$this->escape($value)}' ";
+            $this->_wheres .= " $eh $name $type '{$this->escape($value)}' ";
         }
     }
 
@@ -567,9 +592,9 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         }, $value);
         $whestr = join(',', $value);
         if (empty($this->_wheres) && is_array($value)) {
-            $this->_wheres = " WHERE `$name` $type ({$whestr}) ";
+            $this->_wheres = " WHERE $name $type ({$whestr}) ";
         } else if (!empty($this->_wheres) && is_array($value)) {
-            $this->_wheres .= " $eh `$name` $type ({$whestr}) ";
+            $this->_wheres .= " $eh $name $type ({$whestr}) ";
         }
     }
 

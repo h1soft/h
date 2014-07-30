@@ -46,6 +46,13 @@ function strip_image_tags($str) {
     return preg_replace(array('#<img[\s/]+.*?src\s*=\s*["\'](.+?)["\'].*?\>#', '#<img[\s/]+.*?src\s*=\s*(.+?).*?\>#'), '\\1', $str);
 }
 
+function get_default($param,$default = NULL) {
+    if(isset($param)){
+        return $param;
+    }
+    return NULL;
+}
+
 /**
  * Get GET input
  */
