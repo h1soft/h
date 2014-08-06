@@ -138,7 +138,9 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         if (is_array($data)) {
             $query = $this->_buildQueryString($query, $data);
         }
-        $this->_link->query($query);
+        if(!$this->_link->query($query)){
+            throw new \Exception($this->_link->error);
+        }
         $this->_cur_result_count = $this->_link->affected_rows;
         return $this->_link->affected_rows;
     }
@@ -200,7 +202,11 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
         $vals = array();
         foreach ($_data as $key => $val) {
             $keys[] = sprintf('`%s`', $this->escape($key));
-            $vals[] = sprintf("'%s'", $this->escape($val));
+            if(is_object($val)){
+                $vals[] = sprintf("%s", $val);
+            }else{
+                $vals[] = sprintf("'%s'", $this->escape($val));
+            }            
         }
         $query = vsprintf("INSERT INTO `%s` (%s) VALUES (%s)", array(
             $_tbname,
@@ -295,7 +301,7 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
     }
 
     public function error() {
-        
+        return $this->_link->error;
     }
 
     public function escape($str) {

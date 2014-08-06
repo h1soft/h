@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -46,8 +47,8 @@ function strip_image_tags($str) {
     return preg_replace(array('#<img[\s/]+.*?src\s*=\s*["\'](.+?)["\'].*?\>#', '#<img[\s/]+.*?src\s*=\s*(.+?).*?\>#'), '\\1', $str);
 }
 
-function get_default($param,$default = NULL) {
-    if(isset($param)){
+function get_default($param, $default = NULL) {
+    if (isset($param)) {
         return $param;
     }
     return NULL;
@@ -176,36 +177,45 @@ function url_for($_url, $_params = NULL, $_type = false) {
 
 function url_to($_url, $_params = NULL, $_type = false) {
     $app = strtolower(H1Soft\H\Web\Application::app()->router()->getAppName());
-
-    if ($app == H1Soft\H\Web\Application::app()->router()->getAppName() 
-            || H1Soft\H\Web\Application::app()->router()->getAppName() == \H1Soft\H\Web\Config::get('router.app')) {
+    $basePath = H1Soft\H\Web\Application::basePath();
+    if (is_array($_url)) {
+        if (isset($_url[1])) {
+            $app = $_url[1];                   
+        }
+        $_url = $_url[0];
+        $basePath = H1Soft\H\Web\Application::request()->baseUrl();        
+    }
+    
+    if ($app == H1Soft\H\Web\Application::app()->router()->getAppName() || H1Soft\H\Web\Application::app()->router()->getAppName() == \H1Soft\H\Web\Config::get('router.app')) {
         $app = '';
     } else {
         //Route Alias
         $alias = H1Soft\H\Web\Config::get('alias');
-        $aliasName = array_search($app, $alias);
+        $aliasName = array_search($app, $alias);        
         if ($aliasName) {
             $app = $aliasName;
         } else {
-            $app = strtolower(H1Soft\H\Web\Application::app()->router()->getAppName());
+//            $app = strtolower(H1Soft\H\Web\Application::app()->router()->getAppName());
         }
-        $app = '/' . $app;
+        $app = '/' . $app;        
     }
-    
-    if(startWith($_url, '/')){
-        $_url = ltrim($_url,'/');
+
+    if (startWith($_url, '/')) {
+        $_url = ltrim($_url, '/');
         $app = '';
     }
     if (H1Soft\H\Web\Config::get("router.uri_protocol") == "PATH_INFO") {
         $_type = true;
     }
+    //index.php
     $showscriptname = H1Soft\H\Web\Config::get('router.showscriptname', 'index.php');
-    
+    //Query String
     $querystring = "";
+
     if (is_array($_params) && $_type == false) {
         if ($showscriptname) {
             $querystring = http_build_query($_params);
-            return sprintf("%s/%s?r=%s/%s%s&%s", H1Soft\H\Web\Application::basePath(), $showscriptname, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
+            return sprintf("%s/%s?r=%s/%s%s&%s", $basePath, $showscriptname, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
         } else {
             $querystring = '?' . http_build_query($_params);
         }
@@ -215,21 +225,21 @@ function url_to($_url, $_params = NULL, $_type = false) {
             $querystring .= '/' . $key . "/" . $value;
         }
         if ($showscriptname) {
-            return sprintf("%s/%s%s/%s%s%s", H1Soft\H\Web\Application::basePath(), $showscriptname, $app, $_url, $querystring, H1Soft\H\Web\Config::get('router.suffix'));
+            return sprintf("%s/%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, $querystring, H1Soft\H\Web\Config::get('router.suffix'));
         } else {
 
-            return sprintf("%s%s/%s%s%s", H1Soft\H\Web\Application::basePath(), $app, $_url, $querystring, H1Soft\H\Web\Config::get('router.suffix'));
+            return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, $querystring, H1Soft\H\Web\Config::get('router.suffix'));
         }
     } else {
         if ($showscriptname && $_type == false) {
             $showscriptname = '/' . $showscriptname . '?r=';
-        }else if ($showscriptname && $_type == true) {
+        } else if ($showscriptname && $_type == true) {
             $showscriptname = '/' . $showscriptname;
         }
-        return sprintf("%s%s%s/%s%s%s", H1Soft\H\Web\Application::basePath(), $showscriptname, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
+        return sprintf("%s%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
     }
 
-    return sprintf("%s%s/%s%s%s", H1Soft\H\Web\Application::basePath(), $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
+    return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
 }
 
 function arrayToObject($d) {

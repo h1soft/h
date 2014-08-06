@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -68,6 +69,9 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
     }
 
     private function _initTemplateEngine() {
+        if ($this->_engine) {
+            return $this->_engine;
+        }
         if (\H1Soft\H\Web\Config::get('view.template')) {
             $engine = sprintf("\\H1Soft\\H\\Web\\Template\\%s", \H1Soft\H\Web\Config::get('view.template'));
 
@@ -76,14 +80,22 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
             }
             $this->_engine = new $engine();
         }
+        return $this->_engine;
     }
 
     public function getRender() {
-        return $this->_engine;
+        if (isset($this->_engine)) {
+            return $this->_engine;
+        }
+        return $this->_initTemplateEngine();
     }
 
     public function assign($_valName, $_valValue) {
         $this->_tplVars[$_valName] = $_valValue;
+    }
+    
+    public function getTplVars() {
+        return $this->_tplVars;
     }
 
     public function setRender($_engine) {
@@ -94,12 +106,12 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
         return Application::request();
     }
 
-    public function get($_key, $defaultValue = NULL) {        
-        return Application::request()->get($_key,$defaultValue);
+    public function get($_key, $defaultValue = NULL) {
+        return Application::request()->get($_key, $defaultValue);
     }
 
     public function post($_key, $defaultValue = NULL) {
-        return Application::request()->getPost($_key,$defaultValue);
+        return Application::request()->getPost($_key, $defaultValue);
     }
 
     public function query($_key, $_rev = true) {
@@ -176,6 +188,7 @@ abstract class Controller extends \H1Soft\H\Collections\HArray {
     protected function isDelete() {
         return $this->req()->isDelete();
     }
+
     protected function isAjax() {
         return $this->req()->isAjax();
     }

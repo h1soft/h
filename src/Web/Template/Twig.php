@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -44,11 +45,11 @@ class Twig extends \H1Soft\H\Web\AbstractTemplate {
 
     public function render($filename = false, $data = true, $output = true) {
 
-        if (is_array($data) ) {
+        if (is_array($data)) {
             $data = array_merge($this->data, $data);
         }
 
-       
+
         if (is_array($filename) && is_bool($data)) {
 
             if (!$data) {
@@ -60,13 +61,13 @@ class Twig extends \H1Soft\H\Web\AbstractTemplate {
             $action = strtolower(rtrim(Application::app()->router()->getActionName(), 'Action'));
             $filename = sprintf("%s/%s.html", strtolower(Application::app()->router()->getControllerName()), $action);
         } else {
-            if(is_bool($data)) {
+            if (is_bool($data)) {
                 $data = $this->data;
             }
             $filename = $filename . '.html';
         }
-        
-        if ($output) {                       
+
+        if ($output) {
             echo $this->_twigEnv->render($filename, $data);
         } else {
             return $this->_twigEnv->render($filename, $data);
@@ -86,51 +87,58 @@ class Twig extends \H1Soft\H\Web\AbstractTemplate {
     }
 
     public function get($_valName) {
-        return isset($this->_valName) ? $this->_valName : '';
+        return isset($this->_valName) ? $this->_valName : NULL;
     }
 
     public function set($_valName, $_valValue) {
         $this->$_valName = $_valValue;
     }
-    
-    private function initFunctions(){
-        $url_for = new \Twig_SimpleFunction('url_to', function ($_url,$_params = NULL) {
-            return url_to($_url,$_params);
+
+    public function addLoaderPath($path, $namespace = false) {
+        if ($namespace) {
+            $this->_loader->addPath($path, $namespace);
+        } else {
+            $this->_loader->addPath($path);
+        }
+    }
+
+    private function initFunctions() {
+        $url_for = new \Twig_SimpleFunction('url_to', function ($_url, $_params = NULL) {
+            return url_to($_url, $_params);
         });
         $this->_twigEnv->addFunction($url_for);
-        $repeat = new \Twig_SimpleFunction('repeat', function ($_str,$_num=0) {
-            return str_repeat($_str,$_num);
+        $repeat = new \Twig_SimpleFunction('repeat', function ($_str, $_num = 0) {
+            return str_repeat($_str, $_num);
         });
         $this->_twigEnv->addFunction($repeat);
         $url_ref = new \Twig_SimpleFunction('urlRef', function () {
             $rtn = Application::session()->get('hurlref');
             return $rtn ? $rtn : Application::app()->request()->curUrl();
-        });        
+        });
         $this->_twigEnv->addFunction($url_ref);
-        $flash = new \Twig_SimpleFunction('flash', function ($_remove = true) {            
+        $flash = new \Twig_SimpleFunction('flash', function ($_remove = true) {
             $flashmessage = Application::session()->get('hflash');
-            if($_remove){
+            if ($_remove) {
                 Application::session()->remove('hflash');
             }
             return $flashmessage;
-        });        
-        $this->_twigEnv->addFunction($flash);        
-        $flashCode = new \Twig_SimpleFunction('flashCode', function ($_remove = true) {            
+        });
+        $this->_twigEnv->addFunction($flash);
+        $flashCode = new \Twig_SimpleFunction('flashCode', function ($_remove = true) {
             $hcode = Application::session()->get('hcode');
-            if($_remove){
+            if ($_remove) {
                 Application::session()->remove('hcode');
             }
             return $hcode;
-        });        
-        $this->_twigEnv->addFunction($flashCode); 
-        $dateFormat = new \Twig_SimpleFunction('dateFormat', function ($_timestamp = NULL,$format = 'Y-m-d') {            
-            if($_timestamp){
+        });
+        $this->_twigEnv->addFunction($flashCode);
+        $dateFormat = new \Twig_SimpleFunction('dateFormat', function ($_timestamp = NULL, $format = 'Y-m-d') {
+            if ($_timestamp) {
                 return date($format, $_timestamp);
-            }else{
+            } else {
                 return NULL;
             }
-            
-        });        
+        });
         $this->_twigEnv->addFunction($dateFormat);
     }
 
