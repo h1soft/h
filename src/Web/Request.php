@@ -59,6 +59,10 @@ class Request extends \H1Soft\H\Singleton {
     public function requestUri() {
         return $this->REQUEST_URI;
     }
+    
+    public function baseUrl() {
+        return Application::basePath();
+    }
 
     public function curUrl() {
         $pageURL = 'http://';
