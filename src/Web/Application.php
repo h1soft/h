@@ -59,6 +59,10 @@ class Application extends \H1Soft\H\HApplication {
 
         self::$basePath = dirname($_SERVER['SCRIPT_NAME']);
 
+        if(self::$basePath == '/' || self::$basePath == '\\'){
+            self::$basePath = '';
+        }
+
         self::$etcPath = \H1Soft\H\HApplication::$rootPath . 'etc/';
 
         self::$themesPath = \H1Soft\H\HApplication::$rootPath . 'themes/';

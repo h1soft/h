@@ -87,7 +87,7 @@ class Twig extends \H1Soft\H\Web\AbstractTemplate {
     }
 
     public function get($_valName) {
-        return isset($this->_valName) ? $this->_valName : NULL;
+        return isset($this->$_valName) ? $this->$_valName : NULL;
     }
 
     public function set($_valName, $_valValue) {
