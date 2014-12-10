@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
-abstract class AbstractTemplate extends \H1Soft\H\Collections\HArray {
+abstract class AbstractTemplate extends \h\Collections\HArray {
 
     protected $_templateFileName;
     protected $_viewPath;

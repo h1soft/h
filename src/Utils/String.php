@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace H1Soft\H\Utils;
+namespace hmvc\Utils;
 class String {
 
     function subHtml($text, $length = 100, $ending = '...', $allowed_tags = '<b><i>', $remove_image = true, $exact = false) {

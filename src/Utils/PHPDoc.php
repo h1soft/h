@@ -9,7 +9,7 @@
  */
 
 
-namespace H1Soft\H\Utils;
+namespace hmvc\Utils;
 
 class PHPDoc {
     public static function findName($_name,$_doc) {

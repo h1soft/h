@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web\Template;
+namespace hmvc\Web\Template;
 
-class NoRender extends \H1Soft\H\Web\AbstractTemplate {
+class NoRender extends \h\Web\AbstractTemplate {
 
     public function __construct() {
         

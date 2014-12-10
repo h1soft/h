@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Collections;
+namespace hmvc\Collections;
 
 class HArray implements \ArrayAccess {
 

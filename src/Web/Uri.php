@@ -14,7 +14,7 @@
  * and open the template in the editor.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 /**
  * Description of Uri

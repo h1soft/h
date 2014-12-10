@@ -245,7 +245,7 @@ class UploadFile {
             $info =  array();
             foreach ($fileArray as $key=>$file){
                 //登记上传文件的扩展信息
-                $file['extension']  = H1Soft\H\Utils\File::getExt($file['name']);
+                $file['extension']  = h\Utils\File::getExt($file['name']);
                 $file['savepath']   = $savePath;
                 $file['savename']   = $this->getSaveName($file);
                 // 自动检查附件

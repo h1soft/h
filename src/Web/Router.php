@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 class Router {
 
@@ -20,7 +20,7 @@ class Router {
     protected $suffix = '';
     private $application;
     public $strNameSpace;
-    public $errorController = "\\H1Soft\\H\\Web\\Exception\\Error";
+    public $errorController = "\\hmvc\\Web\\Exception\\Error";
 
     public function __construct() {
         $this->application = Application::app();
@@ -31,7 +31,7 @@ class Router {
 //        echo $this->defaultApp, '<br/>';
 //        echo $this->defaultController, '<br/>';
 //        echo $this->defaultAction, '<br/>';
-//        print_r($_GET);
+//        print_r($_GET);        
         if (!$this->_cobj_ref) {
             $this->_notfound();
         }
@@ -66,7 +66,7 @@ class Router {
         if (is_array($this->requestUri)) {
             $_param_len = count($this->requestUri);
             //alias
-            $alias = \H1Soft\H\Web\Config::get('alias');
+            $alias = \h\Web\Config::get('alias');
             if (is_array($alias)) {
                 $appname = $this->requestUri[0];
                 if (isset($alias[$appname])) {
@@ -211,7 +211,7 @@ class Router {
             //no param
             //app/c/a
             // $this->strNameSpace = sprintf("\\%s\\%s\\Controller\\%s",Application::app()->src,$this->getAppName(),$this->getControllerName());
-            // $this->_cobj_ref = new $this->strNameSpace();            
+//             $this->_cobj_ref = new $this->strNameSpace();            
             $this->_defaultController();
         }
     }
@@ -304,8 +304,8 @@ class Router {
     }
 
     private function _defaultController() {
-        Application::checkController(\H1Soft\H\Web\Config::get('router.controller'), 'Index');
-        Application::checkAction(\H1Soft\H\Web\Config::get('router.action'), 'Index');
+        Application::checkController(\h\Web\Config::get('router.controller'), 'Index');
+        Application::checkAction(\h\Web\Config::get('router.action'), 'Index');
     }
 
     function xssClean($data, $htmlentities = 0) {

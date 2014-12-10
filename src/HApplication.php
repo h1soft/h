@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H;
+namespace hmvc;
 
 iconv_set_encoding("internal_encoding", "UTF-8");
 
@@ -39,7 +39,7 @@ define('SP', realpath(__DIR__) . DS);
 //Common Functions
 require 'Common.php';
 
-class HApplication extends \H1Soft\H\Collections\HArray {
+class HApplication extends \h\Collections\HArray {
 
     
     public static $rootPath;

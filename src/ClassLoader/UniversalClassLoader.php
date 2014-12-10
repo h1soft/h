@@ -17,7 +17,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\ClassLoader;
+namespace hmvc\ClassLoader;
 
 /**
  * UniversalClassLoader implements a "universal" autoloader for PHP 5.3.

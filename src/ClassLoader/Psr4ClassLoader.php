@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\ClassLoader;
+namespace hmvc\ClassLoader;
 
 class Psr4ClassLoader {
 

@@ -176,26 +176,26 @@ function url_for($_url, $_params = NULL, $_type = false) {
 }
 
 function url_to($_url, $_params = NULL, $_type = false) {
-    $app = strtolower(H1Soft\H\Web\Application::app()->router()->getAppName());
-    $basePath = H1Soft\H\Web\Application::basePath();
+    $app = strtolower(h\Web\Application::app()->router()->getAppName());
+    $basePath = h\Web\Application::basePath();
     if (is_array($_url)) {
         if (isset($_url[1])) {
             $app = $_url[1];                   
         }
         $_url = $_url[0];
-        $basePath = H1Soft\H\Web\Application::request()->baseUrl();        
+        $basePath = h\Web\Application::request()->baseUrl();        
     }
     
-    if ($app == H1Soft\H\Web\Application::app()->router()->getAppName() || H1Soft\H\Web\Application::app()->router()->getAppName() == \H1Soft\H\Web\Config::get('router.app')) {
+    if ($app == h\Web\Application::app()->router()->getAppName() || h\Web\Application::app()->router()->getAppName() == \h\Web\Config::get('router.app')) {
         $app = '';
     } else {
         //Route Alias
-        $alias = H1Soft\H\Web\Config::get('alias');
+        $alias = h\Web\Config::get('alias');
         $aliasName = array_search($app, $alias);        
         if ($aliasName) {
             $app = $aliasName;
         } else {
-//            $app = strtolower(H1Soft\H\Web\Application::app()->router()->getAppName());
+//            $app = strtolower(h\Web\Application::app()->router()->getAppName());
         }
         $app = '/' . $app;        
     }
@@ -204,18 +204,18 @@ function url_to($_url, $_params = NULL, $_type = false) {
         $_url = ltrim($_url, '/');
         $app = '';
     }
-    if (H1Soft\H\Web\Config::get("router.uri_protocol") == "PATH_INFO") {
+    if (h\Web\Config::get("router.uri_protocol") == "PATH_INFO") {
         $_type = true;
     }
     //index.php
-    $showscriptname = H1Soft\H\Web\Config::get('router.showscriptname', 'index.php');
+    $showscriptname = h\Web\Config::get('router.showscriptname', 'index.php');
     //Query String
     $querystring = "";
 
     if (is_array($_params) && $_type == false) {
         if ($showscriptname) {
             $querystring = http_build_query($_params);
-            return sprintf("%s/%s?r=%s/%s%s&%s", $basePath, $showscriptname, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
+            return sprintf("%s/%s?r=%s/%s%s&%s", $basePath, $showscriptname, $app, $_url, h\Web\Config::get('router.suffix'), $querystring);
         } else {
             $querystring = '?' . http_build_query($_params);
         }
@@ -225,10 +225,10 @@ function url_to($_url, $_params = NULL, $_type = false) {
             $querystring .= '/' . $key . "/" . $value;
         }
         if ($showscriptname) {
-            return sprintf("%s/%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, $querystring, H1Soft\H\Web\Config::get('router.suffix'));
+            return sprintf("%s/%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, $querystring, h\Web\Config::get('router.suffix'));
         } else {
 
-            return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, $querystring, H1Soft\H\Web\Config::get('router.suffix'));
+            return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, $querystring, h\Web\Config::get('router.suffix'));
         }
     } else {
         if ($showscriptname && $_type == false) {
@@ -236,10 +236,10 @@ function url_to($_url, $_params = NULL, $_type = false) {
         } else if ($showscriptname && $_type == true) {
             $showscriptname = '/' . $showscriptname;
         }
-        return sprintf("%s%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
+        return sprintf("%s%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, h\Web\Config::get('router.suffix'), $querystring);
     }
 
-    return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, H1Soft\H\Web\Config::get('router.suffix'), $querystring);
+    return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, h\Web\Config::get('router.suffix'), $querystring);
 }
 
 function arrayToObject($d) {
@@ -280,7 +280,7 @@ function objectToArray($d) {
  * @return null or value
  */
 function config($_key, $_default = NULL) {
-    return \H1Soft\H\Web\Config::get($_key, $_default);
+    return \h\Web\Config::get($_key, $_default);
 }
 
 /**
@@ -305,11 +305,11 @@ function p() {
  * @return type
  */
 function rootPath() {
-    return H1Soft\H\HApplication::rootPath();
+    return h\HApplication::rootPath();
 }
 
 function varPath() {
-    return H1Soft\H\HApplication::varPath();
+    return h\HApplication::varPath();
 }
 
 /**

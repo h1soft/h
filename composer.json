@@ -17,6 +17,6 @@
         "phpunit/phpunit": "4.1.*"
     },
     "autoload": {
-        "psr-4": { "H1Soft\\H\\": "src" }
+        "psr-4": { "hmvc\\": "src" }
     }
 }

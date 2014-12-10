@@ -9,7 +9,7 @@
  */
 
 
-namespace H1Soft\H\Db\Driver;
+namespace hmvc\Db\Driver;
 
 
 /**

@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web\Exception;
+namespace hmvc\Web\Exception;
 
-class Error extends \H1Soft\H\Web\Controller {
+class Error extends \h\Web\Controller {
 
     public function indexAction() {
         

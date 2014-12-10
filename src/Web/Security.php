@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 class Security {
 
@@ -19,7 +19,7 @@ class Security {
             }
             $keys = array_map('stripslashes', array_keys($data));
             $data = array_combine($keys, array_values($data));
-            return array_map(array($this, '\H1Soft\H\Web::stripSlashes'), $data);
+            return array_map(array($this, '\h\Web::stripSlashes'), $data);
         } else {
             return \stripslashes($data);
         }

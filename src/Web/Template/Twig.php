@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web\Template;
+namespace hmvc\Web\Template;
 
-use \H1Soft\H\Web\Application;
+use \hmvc\Web\Application;
 
-class Twig extends \H1Soft\H\Web\AbstractTemplate {
+class Twig extends \h\Web\AbstractTemplate {
 
     private $_loader;
     private $_twigEnv;
@@ -22,15 +22,15 @@ class Twig extends \H1Soft\H\Web\AbstractTemplate {
 
     public function __construct() {
 
-        $this->setViewPath(\H1Soft\H\Web\Application::themesPath());
-        $this->setTheme(\H1Soft\H\Web\Config::get('view.theme'));
+        $this->setViewPath(\h\Web\Application::themesPath());
+        $this->setTheme(\h\Web\Config::get('view.theme'));
 
-        $this->tplFullPath = $this->getViewPath() . \H1Soft\H\Web\Config::get('view.theme', 'default') . '/';
+        $this->tplFullPath = $this->getViewPath() . \h\Web\Config::get('view.theme', 'default') . '/';
 
-        if (\H1Soft\H\Web\Config::get('view.cache', false) === false) {
+        if (\h\Web\Config::get('view.cache', false) === false) {
             $this->cachePath = false;
         } else {
-            $this->cachePath = \H1Soft\H\Web\Application::varPath() . 'cache/';
+            $this->cachePath = \h\Web\Application::varPath() . 'cache/';
         }
 
         if (!isset($this->_loader)) {

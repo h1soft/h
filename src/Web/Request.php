@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
-class Request extends \H1Soft\H\Singleton {
+class Request extends \h\Singleton {
 
     private $_segments = array();
     private $_params = array();

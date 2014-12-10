@@ -12,7 +12,7 @@
  * 效率测试工具
  */
 
-namespace H1Soft\H\Utils;
+namespace hmvc\Utils;
 
 class Benchmark {
 

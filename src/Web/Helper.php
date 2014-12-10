@@ -14,7 +14,7 @@
  * and open the template in the editor.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 /**
  * Description of Helper
@@ -23,6 +23,6 @@ namespace H1Soft\H\Web;
  */
 abstract class Helper {
     public function db($_dbname = 'db') {
-        return \H1Soft\H\Db\Db::getConnection($_dbname);
+        return \h\Db\Db::getConnection($_dbname);
     }
 }

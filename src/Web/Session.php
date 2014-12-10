@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
-class Session extends \H1Soft\H\Singleton {
+class Session extends \h\Singleton {
     
     protected function init() {        
         \session_start();

@@ -2,7 +2,7 @@
 
 
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 
 class Bootstarp {

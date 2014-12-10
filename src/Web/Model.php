@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 /**
  * Description of Helper
  *
  * @author Administrator
  */
-class Model extends \H1Soft\H\Singleton {
+class Model extends \h\Singleton {
 
     public function db($_dbname = 'db') {
-        return \H1Soft\H\Db\Db::getConnection($_dbname);
+        return \h\Db\Db::getConnection($_dbname);
     }
 
 }

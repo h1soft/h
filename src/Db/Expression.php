@@ -29,7 +29,7 @@
 
  */
 
-namespace H1Soft\H\Db;
+namespace hmvc\Db;
 
 /**
  * Description of Expression

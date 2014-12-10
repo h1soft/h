@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web\Template;
+namespace hmvc\Web\Template;
 
-class View extends \H1Soft\H\Web\AbstractTemplate {
+class View extends \h\Web\AbstractTemplate {
 
     private $_charset = 'utf-8';
     private $_ext = ".php";

@@ -8,11 +8,11 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Db;
+namespace hmvc\Db;
 
-use H1Soft\H\Web\Config;
+use h\Web\Config;
 
-class Db extends \H1Soft\H\Singleton {
+class Db extends \h\Singleton {
 
     /**
      * 数据库连接池
@@ -24,7 +24,7 @@ class Db extends \H1Soft\H\Singleton {
     /**
      * 获取数据库连接
      * @param string $_dbname
-     * @return \H1Soft\H\Db\Driver\MySQLi
+     * @return \h\Db\Driver\MySQLi
      */
     public static function getConnection($_dbname = 'db') {        
         if (isset(self::$_connect_pools[$_dbname])) {
@@ -40,7 +40,7 @@ class Db extends \H1Soft\H\Singleton {
         if ($dbconf && is_array($dbconf) && isset($dbconf['driver'])) {
             switch ($dbconf['driver']) {
                 case 'mysqli':
-                    self::$_connect_pools[$_dbname] = new \H1Soft\H\Db\Driver\MySQLi($dbconf);                    
+                    self::$_connect_pools[$_dbname] = new \h\Db\Driver\MySQLi($dbconf);                    
                     break;
                 case 'pdo_mysql':
                     break;

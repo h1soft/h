@@ -38,7 +38,7 @@ INSERT INTO `h_blog_category` (`id`, `parent`, `sort_order`, `level`, `path`, `n
 (30, 22, 1, 1, '0-22', 'PHP', ''),
 (26, 22, 1, 1, '0-22', 'Java', '');
  */
-namespace H1Soft\H\Web\Extension;
+namespace hmvc\Web\Extension;
 
 /**
  * 分类
@@ -47,7 +47,7 @@ namespace H1Soft\H\Web\Extension;
  */
 class Category {
     public static function query($_tbname){
-        $db = \H1Soft\H\Db\Db::getConnection();
+        $db = \h\Db\Db::getConnection();
         $_tbname = $db->tb_name($_tbname);
         
         $resources = $db->query("SELECT *,CONCAT( path,  '-', sort_order ) AS path

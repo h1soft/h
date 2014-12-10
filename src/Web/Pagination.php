@@ -8,10 +8,10 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 /**
- * $page = new \H1Soft\H\Web\Pagination();
+ * $page = new \h\Web\Pagination();
   $page->setPageSize(1);
   echo $page->count("select count(*) from `h_resources`");
   echo $page->getTotalPage();
@@ -68,7 +68,7 @@ class Pagination {
 
     public function count($str, $data = false, $db = false) {
         if (!$db) {
-            $db = \H1Soft\H\Db\Db::getConnection();
+            $db = \h\Db\Db::getConnection();
         }
         if ($data && is_array($data)) {
             $row = $db->getRow(vsprintf($str, $data), MYSQLI_NUM);

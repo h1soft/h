@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\ClassLoader;
+namespace hmvc\ClassLoader;
 
 class Autoloader {
 
@@ -16,7 +16,7 @@ class Autoloader {
     private $psr0;
 
     public function __construct() {
-        $this->psr4 = new \H1Soft\H\ClassLoader\Psr4ClassLoader();
+        $this->psr4 = new \h\ClassLoader\Psr4ClassLoader();
     }
 
     public function addNameSpace($_namespace, $_path) {

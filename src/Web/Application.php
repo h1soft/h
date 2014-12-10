@@ -1,15 +1,15 @@
 <?php
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
 /**
  * 
  */
-class Application extends \H1Soft\H\HApplication {
+class Application extends \h\HApplication {
 
    /**
     *
-    * @var  H1Soft\H\Web\Route
+    * @var  h\Web\Route
     */
     private static $_router;
     private static $request;
@@ -32,7 +32,7 @@ class Application extends \H1Soft\H\HApplication {
     /**
      * 
      * @param string $namespace
-     * @return \H1Soft\H\Web\Application
+     * @return \h\Web\Application
      */
     public function bootstrap($namespace) {
         $this->bootstrap = $namespace;
@@ -63,9 +63,9 @@ class Application extends \H1Soft\H\HApplication {
             self::$basePath = '';
         }
 
-        self::$etcPath = \H1Soft\H\HApplication::$rootPath . 'etc/';
+        self::$etcPath = \h\HApplication::$rootPath . 'etc/';
 
-        self::$themesPath = \H1Soft\H\HApplication::$rootPath . 'themes/';
+        self::$themesPath = \h\HApplication::$rootPath . 'themes/';
 
         $this->src = 'Apps';
 
@@ -79,13 +79,13 @@ class Application extends \H1Soft\H\HApplication {
         self::$response = new Response();
 
         //register autoloader
-        self::$_psr_loader = new \H1Soft\H\ClassLoader\Autoloader();
+        self::$_psr_loader = new \h\ClassLoader\Autoloader();
 
         $this->_autoLoader();
 
         self::$_psr_loader->register();
 
-        self::$appsPath = \H1Soft\H\HApplication::$rootPath . $this->src . '/';
+        self::$appsPath = \h\HApplication::$rootPath . $this->src . '/';
 
         set_error_handler("hmvc_error");
         set_exception_handler("hmvc_exceptionHandler");
@@ -99,7 +99,7 @@ class Application extends \H1Soft\H\HApplication {
     
     /**
      * 
-     * @return \H1Soft\H\Web\Request
+     * @return \h\Web\Request
      */
     public static function request() {
         return self::$request;
@@ -107,7 +107,7 @@ class Application extends \H1Soft\H\HApplication {
     
     /**
      * 
-     * @return \H1Soft\H\Web\Response
+     * @return \h\Web\Response
      */
     public static function response() {
         return self::$response;
@@ -115,7 +115,7 @@ class Application extends \H1Soft\H\HApplication {
 
     /**
      * 
-     * @return \H1Soft\H\Web\Session
+     * @return \h\Web\Session
      */
     public static function session() {
         if (!self::$_session) {
@@ -126,7 +126,7 @@ class Application extends \H1Soft\H\HApplication {
     
     /**
      * 
-     * @return \H1Soft\H\Web\Router
+     * @return \h\Web\Router
      */
     public static function router() {
         return self::$_router;
@@ -149,7 +149,7 @@ class Application extends \H1Soft\H\HApplication {
     }
 
     public static function db($_dbname = 'db') {
-        return \H1Soft\H\Db\Db::getConnection($_dbname);
+        return \h\Db\Db::getConnection($_dbname);
     }
 
     public static function themesPath() {
@@ -200,7 +200,7 @@ class Application extends \H1Soft\H\HApplication {
 
     public static function checkAction($_name) {
         if (!self::$_router->getController()) {
-            Application::checkController(\H1Soft\H\Web\Config::get('router.controller'), 'Index');
+            Application::checkController(\h\Web\Config::get('router.controller'), 'Index');
         }
         if (method_exists(self::$_router->getController(), $_name . 'Action')) {
             self::$_router->setAction($_name . 'Action');

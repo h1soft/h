@@ -8,9 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace H1Soft\H\Web;
+namespace hmvc\Web;
 
-class Auth extends \H1Soft\H\Singleton {
+class Auth extends \h\Singleton {
 
     protected $id;
     protected $name;
@@ -18,7 +18,7 @@ class Auth extends \H1Soft\H\Singleton {
 
   
     protected function init() {
-        $this->session = \H1Soft\H\Web\Session::getInstance();
+        $this->session = \h\Web\Session::getInstance();
         
     }
 
@@ -47,8 +47,8 @@ class Auth extends \H1Soft\H\Singleton {
             return false;
         }
         //check db
-        $db = \H1Soft\H\Db\Db::getConnection();
-        $password = \H1Soft\H\Utils\Crypt::password($password);
+        $db = \h\Db\Db::getConnection();
+        $password = \h\Utils\Crypt::password($password);
         
         $user = $db->getOne("admin","username='{$username}' and password='{$password}'");
         if ($user) {
@@ -97,7 +97,7 @@ class Auth extends \H1Soft\H\Singleton {
             redirect('index/login');
         }
         Session::getInstance()->set('redirect', Application::app()->request()->curUrl());
-        $db = \H1Soft\H\Db\Db::getConnection();      
+        $db = \h\Db\Db::getConnection();      
         $user = $db->getRow("SELECT MIN( id ) as id FROM  `h_admin`");        
         if ($user['id'] == $this->session->get('auth.id')) {            
             return true;

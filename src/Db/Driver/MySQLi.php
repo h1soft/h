@@ -1,8 +1,8 @@
 <?php
 
-namespace H1Soft\H\Db\Driver;
+namespace hmvc\Db\Driver;
 
-class MySQLi extends \H1Soft\H\Db\Driver\Common {
+class MySQLi extends \h\Db\Driver\Common {
 
     private $_link;
     private $_cur_result_count;
@@ -558,7 +558,7 @@ class MySQLi extends \H1Soft\H\Db\Driver\Common {
      * 
      * @param int $pagesize 页大小
      * @param int $offset 偏移量
-     * @return \H1Soft\H\Db\Driver\MySQLi
+     * @return \h\Db\Driver\MySQLi
      */
     public function limit($pagesize, $offset = 0) {
         if (empty($this->_limit) && !$offset) {
