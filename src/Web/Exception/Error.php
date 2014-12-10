@@ -10,7 +10,7 @@
 
 namespace hmvc\Web\Exception;
 
-class Error extends \h\Web\Controller {
+class Error extends \hmvc\Web\Controller {
 
     public function indexAction() {
         

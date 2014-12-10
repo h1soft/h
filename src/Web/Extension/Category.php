@@ -47,7 +47,7 @@ namespace hmvc\Web\Extension;
  */
 class Category {
     public static function query($_tbname){
-        $db = \h\Db\Db::getConnection();
+        $db = \hmvc\Db\Db::getConnection();
         $_tbname = $db->tb_name($_tbname);
         
         $resources = $db->query("SELECT *,CONCAT( path,  '-', sort_order ) AS path

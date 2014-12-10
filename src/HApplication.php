@@ -39,7 +39,7 @@ define('SP', realpath(__DIR__) . DS);
 //Common Functions
 require 'Common.php';
 
-class HApplication extends \h\Collections\HArray {
+class HApplication extends \hmvc\Collections\HArray {
 
     
     public static $rootPath;

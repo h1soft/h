@@ -10,7 +10,7 @@
 
 namespace hmvc\Web\Template;
 
-class NoRender extends \h\Web\AbstractTemplate {
+class NoRender extends \hmvc\Web\AbstractTemplate {
 
     public function __construct() {
         

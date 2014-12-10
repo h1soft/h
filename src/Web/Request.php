@@ -10,7 +10,7 @@
 
 namespace hmvc\Web;
 
-class Request extends \h\Singleton {
+class Request extends \hmvc\Singleton {
 
     private $_segments = array();
     private $_params = array();

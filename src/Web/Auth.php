@@ -10,7 +10,7 @@
 
 namespace hmvc\Web;
 
-class Auth extends \h\Singleton {
+class Auth extends \hmvc\Singleton {
 
     protected $id;
     protected $name;
@@ -18,7 +18,7 @@ class Auth extends \h\Singleton {
 
   
     protected function init() {
-        $this->session = \h\Web\Session::getInstance();
+        $this->session = \hmvc\Web\Session::getInstance();
         
     }
 
@@ -47,8 +47,8 @@ class Auth extends \h\Singleton {
             return false;
         }
         //check db
-        $db = \h\Db\Db::getConnection();
-        $password = \h\Utils\Crypt::password($password);
+        $db = \hmvc\Db\Db::getConnection();
+        $password = \hmvc\Utils\Crypt::password($password);
         
         $user = $db->getOne("admin","username='{$username}' and password='{$password}'");
         if ($user) {
@@ -97,7 +97,7 @@ class Auth extends \h\Singleton {
             redirect('index/login');
         }
         Session::getInstance()->set('redirect', Application::app()->request()->curUrl());
-        $db = \h\Db\Db::getConnection();      
+        $db = \hmvc\Db\Db::getConnection();      
         $user = $db->getRow("SELECT MIN( id ) as id FROM  `h_admin`");        
         if ($user['id'] == $this->session->get('auth.id')) {            
             return true;

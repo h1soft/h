@@ -13,7 +13,7 @@ namespace hmvc\Web\Template;
 
 use \hmvc\Web\Application;
 
-class Twig extends \h\Web\AbstractTemplate {
+class Twig extends \hmvc\Web\AbstractTemplate {
 
     private $_loader;
     private $_twigEnv;
@@ -22,15 +22,15 @@ class Twig extends \h\Web\AbstractTemplate {
 
     public function __construct() {
 
-        $this->setViewPath(\h\Web\Application::themesPath());
-        $this->setTheme(\h\Web\Config::get('view.theme'));
+        $this->setViewPath(\hmvc\Web\Application::themesPath());
+        $this->setTheme(\hmvc\Web\Config::get('view.theme'));
 
-        $this->tplFullPath = $this->getViewPath() . \h\Web\Config::get('view.theme', 'default') . '/';
+        $this->tplFullPath = $this->getViewPath() . \hmvc\Web\Config::get('view.theme', 'default') . '/';
 
-        if (\h\Web\Config::get('view.cache', false) === false) {
+        if (\hmvc\Web\Config::get('view.cache', false) === false) {
             $this->cachePath = false;
         } else {
-            $this->cachePath = \h\Web\Application::varPath() . 'cache/';
+            $this->cachePath = \hmvc\Web\Application::varPath() . 'cache/';
         }
 
         if (!isset($this->_loader)) {

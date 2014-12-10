@@ -12,7 +12,7 @@ namespace hmvc\Db;
 
 use h\Web\Config;
 
-class Db extends \h\Singleton {
+class Db extends \hmvc\Singleton {
 
     /**
      * 数据库连接池
@@ -24,7 +24,7 @@ class Db extends \h\Singleton {
     /**
      * 获取数据库连接
      * @param string $_dbname
-     * @return \h\Db\Driver\MySQLi
+     * @return \hmvc\Db\Driver\MySQLi
      */
     public static function getConnection($_dbname = 'db') {        
         if (isset(self::$_connect_pools[$_dbname])) {
@@ -40,7 +40,7 @@ class Db extends \h\Singleton {
         if ($dbconf && is_array($dbconf) && isset($dbconf['driver'])) {
             switch ($dbconf['driver']) {
                 case 'mysqli':
-                    self::$_connect_pools[$_dbname] = new \h\Db\Driver\MySQLi($dbconf);                    
+                    self::$_connect_pools[$_dbname] = new \hmvc\Db\Driver\MySQLi($dbconf);                    
                     break;
                 case 'pdo_mysql':
                     break;

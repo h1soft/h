@@ -177,7 +177,7 @@ function url_for($_url, $_params = NULL, $_type = false) {
 
 function url_to($_url, $_params = NULL, $_type = false) {
     $app = strtolower(h\Web\Application::app()->router()->getAppName());
-    $basePath = h\Web\Application::basePath();
+    $basePath = hmvc\Web\Application::basePath();
     if (is_array($_url)) {
         if (isset($_url[1])) {
             $app = $_url[1];                   
@@ -186,11 +186,11 @@ function url_to($_url, $_params = NULL, $_type = false) {
         $basePath = h\Web\Application::request()->baseUrl();        
     }
     
-    if ($app == h\Web\Application::app()->router()->getAppName() || h\Web\Application::app()->router()->getAppName() == \h\Web\Config::get('router.app')) {
+    if ($app == hmvc\Web\Application::app()->router()->getAppName() || h\Web\Application::app()->router()->getAppName() == \hmvc\Web\Config::get('router.app')) {
         $app = '';
     } else {
         //Route Alias
-        $alias = h\Web\Config::get('alias');
+        $alias = hmvc\Web\Config::get('alias');
         $aliasName = array_search($app, $alias);        
         if ($aliasName) {
             $app = $aliasName;
@@ -204,18 +204,18 @@ function url_to($_url, $_params = NULL, $_type = false) {
         $_url = ltrim($_url, '/');
         $app = '';
     }
-    if (h\Web\Config::get("router.uri_protocol") == "PATH_INFO") {
+    if (hmvc\Web\Config::get("router.uri_protocol") == "PATH_INFO") {
         $_type = true;
     }
     //index.php
-    $showscriptname = h\Web\Config::get('router.showscriptname', 'index.php');
+    $showscriptname = hmvc\Web\Config::get('router.showscriptname', 'index.php');
     //Query String
     $querystring = "";
 
     if (is_array($_params) && $_type == false) {
         if ($showscriptname) {
             $querystring = http_build_query($_params);
-            return sprintf("%s/%s?r=%s/%s%s&%s", $basePath, $showscriptname, $app, $_url, h\Web\Config::get('router.suffix'), $querystring);
+            return sprintf("%s/%s?r=%s/%s%s&%s", $basePath, $showscriptname, $app, $_url, hmvc\Web\Config::get('router.suffix'), $querystring);
         } else {
             $querystring = '?' . http_build_query($_params);
         }
@@ -225,10 +225,10 @@ function url_to($_url, $_params = NULL, $_type = false) {
             $querystring .= '/' . $key . "/" . $value;
         }
         if ($showscriptname) {
-            return sprintf("%s/%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, $querystring, h\Web\Config::get('router.suffix'));
+            return sprintf("%s/%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, $querystring, hmvc\Web\Config::get('router.suffix'));
         } else {
 
-            return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, $querystring, h\Web\Config::get('router.suffix'));
+            return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, $querystring, hmvc\Web\Config::get('router.suffix'));
         }
     } else {
         if ($showscriptname && $_type == false) {
@@ -239,7 +239,7 @@ function url_to($_url, $_params = NULL, $_type = false) {
         return sprintf("%s%s%s/%s%s%s", $basePath, $showscriptname, $app, $_url, h\Web\Config::get('router.suffix'), $querystring);
     }
 
-    return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, h\Web\Config::get('router.suffix'), $querystring);
+    return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, hmvc\Web\Config::get('router.suffix'), $querystring);
 }
 
 function arrayToObject($d) {
@@ -280,7 +280,7 @@ function objectToArray($d) {
  * @return null or value
  */
 function config($_key, $_default = NULL) {
-    return \h\Web\Config::get($_key, $_default);
+    return \hmvc\Web\Config::get($_key, $_default);
 }
 
 /**

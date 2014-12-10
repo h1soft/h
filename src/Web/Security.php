@@ -19,7 +19,7 @@ class Security {
             }
             $keys = array_map('stripslashes', array_keys($data));
             $data = array_combine($keys, array_values($data));
-            return array_map(array($this, '\h\Web::stripSlashes'), $data);
+            return array_map(array($this, '\hmvc\Web::stripSlashes'), $data);
         } else {
             return \stripslashes($data);
         }

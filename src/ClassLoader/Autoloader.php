@@ -16,7 +16,7 @@ class Autoloader {
     private $psr0;
 
     public function __construct() {
-        $this->psr4 = new \h\ClassLoader\Psr4ClassLoader();
+        $this->psr4 = new \hmvc\ClassLoader\Psr4ClassLoader();
     }
 
     public function addNameSpace($_namespace, $_path) {

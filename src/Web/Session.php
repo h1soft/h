@@ -10,7 +10,7 @@
 
 namespace hmvc\Web;
 
-class Session extends \h\Singleton {
+class Session extends \hmvc\Singleton {
     
     protected function init() {        
         \session_start();

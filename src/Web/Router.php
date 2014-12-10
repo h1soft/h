@@ -66,7 +66,7 @@ class Router {
         if (is_array($this->requestUri)) {
             $_param_len = count($this->requestUri);
             //alias
-            $alias = \h\Web\Config::get('alias');
+            $alias = \hmvc\Web\Config::get('alias');
             if (is_array($alias)) {
                 $appname = $this->requestUri[0];
                 if (isset($alias[$appname])) {
@@ -304,8 +304,8 @@ class Router {
     }
 
     private function _defaultController() {
-        Application::checkController(\h\Web\Config::get('router.controller'), 'Index');
-        Application::checkAction(\h\Web\Config::get('router.action'), 'Index');
+        Application::checkController(\hmvc\Web\Config::get('router.controller'), 'Index');
+        Application::checkAction(\hmvc\Web\Config::get('router.action'), 'Index');
     }
 
     function xssClean($data, $htmlentities = 0) {

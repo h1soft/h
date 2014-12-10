@@ -2,10 +2,12 @@
     "name": "h1soft/h",
     "description": "PHP 5.3 MVC FRAMEWORK",
     "license": "GPL",
+    "homepage":"http://www.hmvc.cn",
     "authors": [
         {
             "name": "allen",
-            "email": "h@h1soft.net"
+            "email": "h@h1soft.net",
+            "homepage":"http://www.hmvc.cn"
         }
     ],
     "minimum-stability": "dev",

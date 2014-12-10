@@ -23,6 +23,6 @@ namespace hmvc\Web;
  */
 abstract class Helper {
     public function db($_dbname = 'db') {
-        return \h\Db\Db::getConnection($_dbname);
+        return \hmvc\Db\Db::getConnection($_dbname);
     }
 }

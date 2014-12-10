@@ -10,7 +10,7 @@
 
 namespace hmvc\Web\Template;
 
-class View extends \h\Web\AbstractTemplate {
+class View extends \hmvc\Web\AbstractTemplate {
 
     private $_charset = 'utf-8';
     private $_ext = ".php";

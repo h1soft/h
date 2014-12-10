@@ -16,10 +16,10 @@ namespace hmvc\Web;
  *
  * @author Administrator
  */
-class Model extends \h\Singleton {
+class Model extends \hmvc\Singleton {
 
     public function db($_dbname = 'db') {
-        return \h\Db\Db::getConnection($_dbname);
+        return \hmvc\Db\Db::getConnection($_dbname);
     }
 
 }

@@ -11,7 +11,7 @@
 
 namespace hmvc\Web;
 
-class Plugin extends \h\Singleton{
+class Plugin extends \hmvc\Singleton{
     public $assetPath;
     
     
@@ -26,14 +26,14 @@ class Plugin extends \h\Singleton{
     }
     
     public static function assetPath($_class) {
-        $folder_name = substr(md5(\h\Utils\Crypt::crc32($_class)), 0, 11);
+        $folder_name = substr(md5(\hmvc\Utils\Crypt::crc32($_class)), 0, 11);
         return Application::$basePath.'/assets/'.$folder_name;
     }
     
     public static function assets($_class) {
-        $folder_name = substr(md5(\h\Utils\Crypt::crc32($_class)), 0, 11);
+        $folder_name = substr(md5(\hmvc\Utils\Crypt::crc32($_class)), 0, 11);
         $path = Application::$rootPath.'assets/'.$folder_name ;
-        if(!is_dir($path) && \h\Utils\File::dir_is_writable(Application::$rootPath.'assets/')){
+        if(!is_dir($path) && \hmvc\Utils\File::dir_is_writable(Application::$rootPath.'assets/')){
             mkdir($path,0777);
         }
         return $path;

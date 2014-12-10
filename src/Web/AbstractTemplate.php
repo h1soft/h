@@ -10,7 +10,7 @@
 
 namespace hmvc\Web;
 
-abstract class AbstractTemplate extends \h\Collections\HArray {
+abstract class AbstractTemplate extends \hmvc\Collections\HArray {
 
     protected $_templateFileName;
     protected $_viewPath;
