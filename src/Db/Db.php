@@ -10,7 +10,7 @@
 
 namespace hmvc\Db;
 
-use h\Web\Config;
+use hmvc\Web\Config;
 
 class Db extends \hmvc\Singleton {
 
