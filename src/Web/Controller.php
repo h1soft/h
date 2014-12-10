@@ -73,10 +73,10 @@ abstract class Controller extends \hmvc\Collections\HArray {
             return $this->_engine;
         }
         if (\hmvc\Web\Config::get('view.template')) {
-            $engine = sprintf("\\H1Soft\\hmvc\\Web\\Template\\%s", \hmvc\Web\Config::get('view.template'));
+            $engine = sprintf("\\hmvc\\Web\\Template\\%s", \hmvc\Web\Config::get('view.template'));
 
             if (!class_exists($engine)) {
-                $engine = "\\H1Soft\\hmvc\\Web\\Template\\View";
+                $engine = "\\hmvc\\Web\\Template\\View";
             }
             $this->_engine = new $engine();
         }
