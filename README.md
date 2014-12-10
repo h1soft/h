@@ -13,16 +13,34 @@ New File: composer.json
 ```json
 {    
     "require": {
-        "h1soft/h": "1.2.3"
+        "h1soft/h": "dev-master"
     }
 }
+
+composer install
 ```
 
 New File : index.php
 ```php
 require 'vendor/autoload.php';
 
-$app = new \H1Soft\H\Web\Application();
+$app = new \hmvc\Web\Application();
 $app->bootstrap('\Module\Bootstrap')->run();
+```
+
+```
+project
+       |__vendor
+              |___ModuleA
+                       |_____Controller
+                                   |_____Index.php
+              |___ModuleB
+                       |_____Controller
+                                   |_____Index.php
+       |__etc
+            |__config.php
+            |__db.php
+            |__rewrite.php
+
 ```
 
