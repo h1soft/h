@@ -8,22 +8,8 @@
  * file that was distributed with this source code.
  */
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+namespace hmvc\ClassLoader;
 
-namespace Symfony\Component\ClassLoader;
-
-/**
- * A class loader that uses a mapping file to look up paths.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- */
 class MapClassLoader {
 
     private $map = array();
