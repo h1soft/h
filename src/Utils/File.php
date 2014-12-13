@@ -10,6 +10,9 @@
 
 namespace hmvc\Utils;
 
+/**
+ * 文件操作
+ */
 class File {
 
     /**
@@ -27,7 +30,12 @@ class File {
         }
         return @mkdir($dir, $mode);
     }
-
+    
+    /**
+     * 获取目录所有文件名称
+     * @param type $dir
+     * @return type
+     */
     static public function getFileNames($dir = ".") {
 
         if (!file_exists($dir) || !is_dir($dir)) {

@@ -62,7 +62,7 @@ class Psr4ClassLoader {
 
         return false;
     }
-
+    
     /**
      * Registers this instance as an autoloader.
      *

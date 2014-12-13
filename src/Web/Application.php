@@ -169,16 +169,15 @@ class Application extends \hmvc\HApplication {
 
     private function _autoLoader() {
 
-        if (isset($this->src) && is_string($this->src) && !empty($this->src)) {
-
-            self::$_psr_loader->addNameSpace(sprintf("\\%s\\", $this->src), $this->src);
+        if (isset($this->src) && is_string($this->src)) {
+            self::$_psr_loader->addNameSpace("\\{$this->src}\\", $this->src);
         }
 
-        // if(isset($this->autoload) && is_array($this->autoload)){
-        // 	foreach ($this->autoload as $key => $value) {					
-        // 			self::$_psr4_loader->addPrefix($key,$value);
-        // 	}
-        // }
+        if(isset($this->autoload['psr4']) && is_array($this->autoload['psr4'])){
+            foreach ($this->autoload['psr4'] as $key => $value) {					
+                self::$_psr_loader->addNameSpace($key,$value);
+            }
+        }
     }
 
     public static function checkApp($_name) {

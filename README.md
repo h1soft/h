@@ -1,5 +1,6 @@
-HFramework
+HMVC
 ===================================
+
 ## Build Status
 [![Build Status](https://travis-ci.org/h1soft/h.svg?branch=master)](https://travis-ci.org/h1soft/h)
 
@@ -7,30 +8,37 @@ php 5.3 mvc framework
 -----------------------------------
 
 
-## A Simple Example
+## 快速开始
 
-New File: composer.json
+新建文件 : composer.json
 ```json
 {    
     "require": {
         "h1soft/h": "dev-master"
     }
 }
+```
 
+## 使用Composer工具
+```
 composer install
 ```
 
-New File : index.php
+新建入口文件 : index.php
 ```php
 require 'vendor/autoload.php';
 
 $app = new \hmvc\Web\Application();
-$app->bootstrap('\Module\Bootstrap')->run();
+$app->run();
 ```
 
-```
+
+
+目录结构
+
+```yaml
 project
-       |__vendor
+       |__companyName
               |___ModuleA
                        |_____Controller
                                    |_____Index.php
@@ -44,3 +52,12 @@ project
 
 ```
 
+
+## 系统最低要求
+
+php5.3或者以上
+
+
+## 支持
+自定义路由
+MySQLi

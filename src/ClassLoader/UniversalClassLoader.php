@@ -240,6 +240,7 @@ class UniversalClassLoader {
      */
     public function loadClass($class) {
         if ($file = $this->findFile($class)) {
+            echo $file;
             require $file;
 
             return true;

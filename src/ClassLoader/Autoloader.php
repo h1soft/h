@@ -13,7 +13,7 @@ namespace hmvc\ClassLoader;
 class Autoloader {
 
     private $psr4;
-    private $psr0;
+//    private $psr0;
 
     public function __construct() {
         $this->psr4 = new \hmvc\ClassLoader\Psr4ClassLoader();
