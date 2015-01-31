@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -63,9 +64,9 @@ class Config {
         } else if ($_len <= 2) {
             $_tobj = Application::app()->$subkeys[0];
             if (is_array($_tobj) && isset($_tobj[$subkeys[1]])) {
-                $_tobj[$subkeys[1]] = $_default;                
+                $_tobj[$subkeys[1]] = $_default;
                 Application::app()->$subkeys[0] = $_tobj;
-            }            
+            }
         }
     }
 
