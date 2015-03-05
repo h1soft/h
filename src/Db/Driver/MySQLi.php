@@ -483,9 +483,9 @@ class MySQLi extends \hmvc\Db\Driver\Common {
 
     public function group_by($name) {
         if (empty($this->_groupby)) {
-            $this->_groupby = " GROUP BY `$name`";
+            $this->_groupby = " GROUP BY $name";
         } else {
-            $this->_groupby .= ",`$name`";
+            $this->_groupby .= ",$name";
         }
         return $this;
     }
@@ -615,7 +615,7 @@ class MySQLi extends \hmvc\Db\Driver\Common {
     }
 
     private function _buildARSelect() {
-        $this->lastSQL = "SELECT {$this->_select_cols} FROM {$this->_tables} {$this->_joins} {$this->_wheres} {$this->_orderby} {$this->_groupby} {$this->_others} {$this->_limit}";
+        $this->lastSQL = "SELECT {$this->_select_cols} FROM {$this->_tables} {$this->_joins} {$this->_wheres} {$this->_groupby} {$this->_orderby} {$this->_others} {$this->_limit}";
         return $this->lastSQL;
     }
 
