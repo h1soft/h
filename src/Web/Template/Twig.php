@@ -46,7 +46,7 @@ class Twig extends \hmvc\Web\AbstractTemplate {
     public function render($filename = false, $data = true, $output = true) {
 
         if (is_array($data)) {
-            $data = array_merge($this->data, $data);
+            $data = array_merge($this->_hdata, $data);
         }
 
 
@@ -56,13 +56,13 @@ class Twig extends \hmvc\Web\AbstractTemplate {
                 $output = false;
             }
 
-            $data = array_merge($this->data, $filename);
+            $data = array_merge($this->_hdata, $filename);
 
             $action = strtolower(rtrim(Application::app()->router()->getActionName(), 'Action'));
             $filename = sprintf("%s/%s.html", strtolower(Application::app()->router()->getControllerName()), $action);
         } else {
             if (is_bool($data)) {
-                $data = $this->data;
+                $data = $this->_hdata;
             }
             $filename = $filename . '.html';
         }
@@ -103,6 +103,10 @@ class Twig extends \hmvc\Web\AbstractTemplate {
     }
 
     private function initFunctions() {
+        $link_to = new \Twig_SimpleFunction('link_to', function ($_url, $_params = NULL) {
+            return url_to($_url, $_params);
+        });
+        $this->_twigEnv->addFunction($link_to);
         $url_for = new \Twig_SimpleFunction('url_to', function ($_url, $_params = NULL) {
             return url_to($_url, $_params);
         });

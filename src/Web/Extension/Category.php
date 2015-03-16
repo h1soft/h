@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -12,11 +13,11 @@
  * demo
  * sql script:
  * 
---
--- 表的结构 `h_blog_category`
---
+  --
+  -- 表的结构 `h_blog_category`
+  --
 
-CREATE TABLE IF NOT EXISTS `h_blog_category` (
+  CREATE TABLE IF NOT EXISTS `h_blog_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent` int(4) NOT NULL,
   `sort_order` int(11) NOT NULL,
@@ -26,18 +27,19 @@ CREATE TABLE IF NOT EXISTS `h_blog_category` (
   `description` varchar(256) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   KEY `path` (`path`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Resources' AUTO_INCREMENT=33 ;
+  ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Resources' AUTO_INCREMENT=33 ;
 
---
--- 转存表中的数据 `h_blog_category`
---
+  --
+  -- 转存表中的数据 `h_blog_category`
+  --
 
-INSERT INTO `h_blog_category` (`id`, `parent`, `sort_order`, `level`, `path`, `name`, `description`) VALUES
-(22, 0, 1, 0, '0', 'Programing', ''),
-(32, 22, 1, 1, '0-22', 'Test', ''),
-(30, 22, 1, 1, '0-22', 'PHP', ''),
-(26, 22, 1, 1, '0-22', 'Java', '');
+  INSERT INTO `h_blog_category` (`id`, `parent`, `sort_order`, `level`, `path`, `name`, `description`) VALUES
+  (22, 0, 1, 0, '0', 'Programing', ''),
+  (32, 22, 1, 1, '0-22', 'Test', ''),
+  (30, 22, 1, 1, '0-22', 'PHP', ''),
+  (26, 22, 1, 1, '0-22', 'Java', '');
  */
+
 namespace hmvc\Web\Extension;
 
 /**
@@ -46,17 +48,18 @@ namespace hmvc\Web\Extension;
  * @author h@h1soft.net
  */
 class Category {
-    public static function query($_tbname){
+
+    public static function query($_tbname) {
         $db = \hmvc\Db\Db::getConnection();
         $_tbname = $db->tb_name($_tbname);
-        
+
         $resources = $db->query("SELECT *,CONCAT( path,  '-', sort_order ) AS path
         FROM  `$_tbname` ORDER BY sort_order ASC,id DESC");
         $result = array();
-        self::sort(0, 0, $resources, $result);   
+        self::sort(0, 0, $resources, $result);
         return $result;
     }
-    
+
     public static function sort($level, $id, $category, &$result) {
         if ($id == "") {
             $id = 0;
@@ -65,12 +68,12 @@ class Category {
         $n = str_replace("-", "&nbsp;&nbsp;&nbsp;&nbsp;", $n);
         for ($i = 0; $i < count($category); $i++) {
             if ($category[$i]['parent'] == $id) {
-                $category[$i]['Placeholder'] = $n . '|--';
+                $category[$i]['Placeholder'] = $n . '→';
                 $category[$i]['level'] = $level;
                 $result[] = $category[$i];
                 self::sort($level + 1, $category[$i]['id'], $category, $result);
             }
         }
     }
-    
+
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -21,11 +22,11 @@ abstract class AbstractTemplate extends \hmvc\Collections\HArray {
     abstract public function assign($_valName, $_valValue);
 
     abstract public function get($_valName);
-    
-    public function setArray($_valArray){        
-        if(is_array($_valArray) && !empty($_valArray)){
-            
-            $this->data = array_merge($this->data,$_valArray);
+
+    public function setArray($_valArray) {
+        if (is_array($_valArray) && !empty($_valArray)) {
+
+            $this->_hdata = array_merge($this->_hdata, $_valArray);
         }
     }
 

@@ -93,9 +93,17 @@ abstract class Controller extends \hmvc\Collections\HArray {
     public function assign($_valName, $_valValue) {
         $this->_tplVars[$_valName] = $_valValue;
     }
-    
+
     public function getTplVars() {
         return $this->_tplVars;
+    }
+
+    public function getCss() {
+        return $this->_viewCss;
+    }
+
+    public function getJs() {
+        return $this->_viewScripts;
     }
 
     public function setRender($_engine) {

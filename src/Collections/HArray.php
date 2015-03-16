@@ -18,52 +18,52 @@ class HArray implements \ArrayAccess {
      * @var array
      * @access private
      */
-    protected $data = array();
+    protected $_hdata = array();
 
     /**
-     * Get a data by key
+     * Get a _hdata by key
      *
-     * @param string The key data to retrieve
+     * @param string The key _hdata to retrieve
      * @access public
      */
     public function __get($key) {
-        if (!isset($this->data[$key])) {
+        if (!isset($this->_hdata[$key])) {
             return NULL;
         }
-        return $this->data[$key];
+        return $this->_hdata[$key];
     }
 
     /**
-     * Assigns a value to the specified data
+     * Assigns a value to the specified _hdata
      * 
-     * @param string The data key to assign the value to
+     * @param string The _hdata key to assign the value to
      * @param mixed  The value to set
      * @access public 
      */
     public function __set($key, $value) {
-        $this->data[$key] = $value;
+        $this->_hdata[$key] = $value;
     }
 
     /**
-     * Whether or not an data exists by key
+     * Whether or not an _hdata exists by key
      *
-     * @param string An data key to check for
+     * @param string An _hdata key to check for
      * @access public
      * @return boolean
      * @abstracting ArrayAccess
      */
     public function __isset($key) {
-        return isset($this->data[$key]);
+        return isset($this->_hdata[$key]);
     }
 
     /**
-     * Unsets an data by key
+     * Unsets an _hdata by key
      *
      * @param string The key to unset
      * @access public
      */
     public function __unset($key) {
-        unset($this->data[$key]);
+        unset($this->_hdata[$key]);
     }
 
     /**
@@ -76,9 +76,9 @@ class HArray implements \ArrayAccess {
      */
     public function offsetSet($offset, $value) {
         if (is_null($offset)) {
-            $this->data[] = $value;
+            $this->_hdata[] = $value;
         } else {
-            $this->data[$offset] = $value;
+            $this->_hdata[$offset] = $value;
         }
     }
 
@@ -91,7 +91,7 @@ class HArray implements \ArrayAccess {
      * @abstracting ArrayAccess
      */
     public function offsetExists($offset) {
-        return isset($this->data[$offset]);
+        return isset($this->_hdata[$offset]);
     }
 
     /**
@@ -103,7 +103,7 @@ class HArray implements \ArrayAccess {
      */
     public function offsetUnset($offset) {
         if ($this->offsetExists($offset)) {
-            unset($this->data[$offset]);
+            unset($this->_hdata[$offset]);
         }
     }
 
@@ -116,7 +116,7 @@ class HArray implements \ArrayAccess {
      * @abstracting ArrayAccess
      */
     public function offsetGet($offset) {
-        return $this->offsetExists($offset) ? $this->data[$offset] : null;
+        return $this->offsetExists($offset) ? $this->_hdata[$offset] : null;
     }
 
 }

@@ -276,10 +276,9 @@ class MySQLi extends \hmvc\Db\Driver\Common {
     public function delete($_tbname, $_where = false) {
         $_tbname = $this->tb_name($_tbname);
         if (!$_where) {
-            $query = vsprintf("DELETE FROM `%s`", array(
-                $_tbname
-            ));
+            $query = "DELETE FROM `$_tbname` {$this->_wheres}";
             $this->lastSQL = $query;
+            $this->_resetSql();
             return $this->exec($query);
         } else {
             if (is_array($_where)) {
