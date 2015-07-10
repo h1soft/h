@@ -30,6 +30,10 @@ abstract class AbstractTemplate extends \hmvc\Collections\HArray {
         }
     }
 
+    public function getArray() {
+        return $this->_hdata;
+    }
+
     abstract public function set($_valName, $_valValue);
 
     public function getTemplateEngine() {
@@ -58,6 +62,10 @@ abstract class AbstractTemplate extends \hmvc\Collections\HArray {
 
     public function setTheme($_theme) {
         return $this->_theme = $_theme;
+    }
+
+    public function isDefault() {
+        return false;
     }
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -14,6 +15,7 @@ class Request extends \hmvc\Singleton {
 
     private $_segments = array();
     private $_params = array();
+    private $_paramArrays = array();
 
     public function init() {
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
@@ -51,7 +53,7 @@ class Request extends \hmvc\Singleton {
     public function userAgent() {
         return $this->HTTP_USER_AGENT;
     }
-    
+
     public function language() {
         return $this->HTTP_ACCEPT_LANGUAGE;
     }
@@ -59,7 +61,7 @@ class Request extends \hmvc\Singleton {
     public function requestUri() {
         return $this->REQUEST_URI;
     }
-    
+
     public function baseUrl() {
         return Application::basePath();
     }
@@ -134,6 +136,18 @@ class Request extends \hmvc\Singleton {
 
     public function setSegment($_segments) {
         $this->_segments = $_segments;
+    }
+
+    public function getSegment() {
+        return $this->_segments;
+    }
+
+    public function setParamArrays($params) {
+        $this->_paramArrays = $params;
+    }
+
+    public function getParamArrays() {
+        return $this->_paramArrays;
     }
 
     public function param($_key, $defaultValue = null) {

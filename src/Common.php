@@ -101,38 +101,16 @@ function hmvc_error($code, $message, $file, $line) {
     if (0 == error_reporting()) {
         return;
     }
-//    echo "<b>Error:</b> [$errno] $errstr<br />";
-//    echo " Error on line $errline in $errfile<br />";
-//    echo "Ending Script";
-//    die();
-    throw new ErrorException($message, 0, $code, $file, $line);
+    if ($code) {
+        \hmvc\System\StackTrace::systemError($message, false, true, false);
+    }
 }
 
 function hmvc_exceptionHandler($exception) {
     if (0 == error_reporting()) {
         return;
     }
-    $version = HVERSION;
-    echo <<<EOF
-    <!DOCTYPE html>
-<html lang="zh-cn">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{$version}</title>
-     </head>
-  <body>
-   
-EOF;
-    echo '<div class="alert alert-danger">';
-    echo '<h3>' . get_class($exception) . '</h3><p>';
-    echo $exception->getMessage() . '<br></p>';
-    echo 'Stack trace:<pre style="background-color:#ccc;">' . $exception->getTraceAsString() . '</pre>';
-    echo 'thrown in <b>' . $exception->getFile() . '</b> on line <b>' . $exception->getLine() . '</b><br>';
-    echo '</div>';
-//    highlight_string(_getRows($exception->getFile(), $exception->getLine() - 3, $exception->getLine() + 3));
-    echo '</body></html>';
+    \hmvc\System\StackTrace::exceptionError($exception);
 }
 
 function _getRows($filename, $start, $offset = 0) {
@@ -180,24 +158,24 @@ function url_to($_url, $_params = NULL, $_type = false) {
     $basePath = hmvc\Web\Application::basePath();
     if (is_array($_url)) {
         if (isset($_url[1])) {
-            $app = $_url[1];                   
+            $app = $_url[1];
         }
         $_url = $_url[0];
-        $basePath = hmvc\Web\Application::request()->baseUrl();        
+        $basePath = hmvc\Web\Application::request()->baseUrl();
     }
-    
+
     if ($app == hmvc\Web\Application::app()->router()->getAppName() || hmvc\Web\Application::app()->router()->getAppName() == \hmvc\Web\Config::get('router.app')) {
         $app = '';
     } else {
         //Route Alias
         $alias = hmvc\Web\Config::get('alias');
-        $aliasName = array_search($app, $alias);        
+        $aliasName = array_search($app, $alias);
         if ($aliasName) {
             $app = $aliasName;
         } else {
 //            $app = strtolower(h\Web\Application::app()->router()->getAppName());
         }
-        $app = '/' . $app;        
+        $app = '/' . $app;
     }
 
     if (startWith($_url, '/')) {

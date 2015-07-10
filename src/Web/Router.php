@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -28,10 +29,7 @@ class Router {
 
     public function dispatch() {
         $this->initRequest();
-//        echo $this->defaultApp, '<br/>';
-//        echo $this->defaultController, '<br/>';
-//        echo $this->defaultAction, '<br/>';
-//        print_r($_GET);        
+
         if (!$this->_cobj_ref) {
             $this->_notfound();
         }
@@ -41,9 +39,28 @@ class Router {
         $this->_cobj_ref->before();
 
         if (method_exists($this->_cobj_ref, $this->getActionName())) {
-            $actionName = $this->getActionName();
-            $this->_cobj_ref->$actionName();
-//            call_user_func_array(array($this->_cobj_ref, $this->getActionName()), array());
+            $reflectionMethod = new \ReflectionMethod($this->_cobj_ref, $this->getActionName());
+            if ($reflectionMethod->getNumberOfRequiredParameters() > 0) {
+                $paramsWithid = $this->application->request()->getParamArrays();
+                $paramsWithName = $this->application->request()->getParams();
+                $ps = array();
+                foreach ($reflectionMethod->getParameters() as $i => $param) {
+                    $name = $param->getName();
+                    if (isset($paramsWithName[$name])) {
+                        if ($param->isArray())
+                            $ps[] = is_array($paramsWithName[$name]) ? $paramsWithName[$name] : array($paramsWithName[$name]);
+                        else if (!is_array($paramsWithName[$name]))
+                            $ps[] = $paramsWithName[$name];
+                    }else if (isset($paramsWithid[$i+1])) {
+                        $ps[] = $paramsWithid[$i+1];
+                    } else if ($param->isDefaultValueAvailable())
+                        $ps[] = $param->getDefaultValue();
+                }
+                $reflectionMethod->invokeArgs($this->_cobj_ref, $ps);
+//                $reflectionMethod->invokeArgs($this->_cobj_ref, $this->application->request()->getParamArrays());
+            } else {
+                $reflectionMethod->invoke($this->_cobj_ref);
+            }
         } else {
             $this->_notfound();
         }
@@ -58,7 +75,7 @@ class Router {
         $this->_rewrite();
 
         $this->_parseUrl();
-        
+
         $this->defaultApp = Config::get('router.app', $this->defaultApp);
         $this->defaultController = isset($this->application->router['controller']) ? $this->application->router['controller'] : $this->defaultController;
         $this->defaultAction = isset($this->application->router['action']) ? $this->application->router['action'] . 'Action' : $this->defaultAction . 'Action';
@@ -74,7 +91,6 @@ class Router {
                     $this->requestUri[0] = $alias[$appname];
                 }
             }
-
             switch ($_param_len) {
                 case 1:
                     if (Application::checkApp($this->requestUri[0])) {
@@ -86,6 +102,7 @@ class Router {
                         
                     } else {
                         $this->_defaultController();
+                        $this->application->request()->setParamArrays(array($this->requestUri[0]));
                     }
 
                     break;
@@ -108,11 +125,12 @@ class Router {
                             $this->_notfound();
                         }
                     } else {
-                        $this->_notfound();
+//                        $this->_notfound();
+                        $this->_defaultController();
+                        $this->application->request()->setParamArrays($this->requestUri);
                     }
                     break;
                 case 3:
-
                     if (Application::checkApp($this->requestUri[0])) {
                         $this->defaultApp = ucwords($this->requestUri[0]);
                         if (Application::checkController(ucwords($this->requestUri[1]))) {
@@ -137,9 +155,12 @@ class Router {
                         if (!Application::checkAction(ucwords($this->requestUri[1]))) {
                             $this->_notfound();
                         }
+                        $this->application->request()->setParamArrays(array($this->requestUri[2]));
                         return;
                     } else {
-                        $this->_notfound();
+//                        $this->_notfound();
+                        $this->_defaultController();
+                        $this->application->request()->setParamArrays($this->requestUri);
                     }
                     break;
                 case 4:
@@ -200,7 +221,10 @@ class Router {
                         $this->prcParams(2, $_param_len);
                         return;
                     } else {
-                        $this->_notfound();
+//                        $this->_notfound();
+                        $this->prcParams(0, $_param_len);
+                        $this->_defaultController();
+                        $this->application->request()->setParamArrays($this->requestUri);
                     }
                     break;
                 default:
@@ -220,7 +244,7 @@ class Router {
         //path_info
         if (isset($_SERVER['PATH_INFO'])) {
             $_GET['r'] = $_SERVER['PATH_INFO'];
-        }        
+        }
         if (isset($_GET['r'])) {
 
             $r = str_replace($this->suffix, '', $_GET['r']);
@@ -229,9 +253,9 @@ class Router {
             } else {
                 $this->requestUri = explode('/', $this->xssClean(trim($r, '/')));
             }
-            $this->application->request()->setSegment($this->requestUri);            
+            $this->application->request()->setSegment($this->requestUri);
         } else {
-            $this->requestUri = "";            
+            $this->requestUri = "";
         }
     }
 
@@ -243,8 +267,8 @@ class Router {
 
         foreach ($rewrites as $rewrite => $value) {
             $rewrite = str_replace('/', '\/', $rewrite);
-            
-            $requestUri = str_replace(Application::basePath(),'',$requestUri);
+
+            $requestUri = str_replace(Application::basePath(), '', $requestUri);
 //            echo $rewrite;
             if (preg_match("/$rewrite/i", $requestUri, $paramValues)) {
 //                print_r($paramValues);
@@ -271,10 +295,6 @@ class Router {
 
                 $_GET['r'] = preg_replace($patterns, $replacements, $value);
             }
-
-
-
-//            echo $value;
         }
     }
 
@@ -289,16 +309,30 @@ class Router {
         return $this->_cobj_ref;
     }
 
+    /**
+     * 
+     * @return string ActionName
+     */
     public function getActionName() {
         return $this->defaultAction;
     }
 
+    /**
+     * 
+     * @return string AppName
+     */
     public function getAppName() {
         return $this->defaultApp;
     }
 
+    /**
+     * 404 Page
+     */
     private function _notfound() {
         $this->_cobj_ref = new $this->errorController();
+        $this->_cobj_ref->appName = $this->defaultApp;
+        $this->_cobj_ref->controllerName = $this->defaultController;
+        $this->_cobj_ref->actionName = $this->defaultAction;
         $this->defaultController = "Error";
         $this->defaultAction = 'notfoundAction';
     }
@@ -389,8 +423,9 @@ class Router {
                 }
                 $params[$key] = $value;
             }
-            unset($ps);
+            $this->application->request()->setParamArrays($ps);
             $this->application->request()->setParams($params);
+            unset($ps);
         }
     }
 

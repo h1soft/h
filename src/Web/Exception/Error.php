@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -11,6 +12,11 @@
 namespace hmvc\Web\Exception;
 
 class Error extends \hmvc\Web\Controller {
+    
+    public $appName;
+    public $controllerName;
+    public $actionName;
+
 
     public function indexAction() {
         
@@ -26,6 +32,18 @@ class Error extends \hmvc\Web\Controller {
 <p>The requested URL  was not found on this server.</p>
 <p>Additionally, a 404 Not Found
 error was encountered while trying to use an ErrorDocument to handle the request.</p>
+EOF;
+        if (config('debug.display_errors', false)) {
+            echo <<<EOF
+            <div style="border:solid 1px #ccc;">
+                <div style="line-height:30px;font-weight:bold;background-color: #F3B516;">Debug</div>
+                AppName : {$this->appName}<br/>
+                ControllerName : {$this->controllerName}<br/>
+                Action : {$this->actionName}<br/>
+            </div>
+EOF;
+        }
+        echo <<<EOF
 </body></html>
 EOF;
     }

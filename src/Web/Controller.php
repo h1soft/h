@@ -38,26 +38,35 @@ abstract class Controller extends \hmvc\Collections\HArray {
         
     }
 
-    public function indexAction() {
-        
-    }
+//    public function indexAction() {
+//        
+//    }
 
     public function after() {
         
     }
 
     public function render($tplFileName = false, $data = true, $output = true) {
-        try {
-            $this->_initTemplateEngine();
-            $this->_engine->setArray($this->_tplVars);
-            $this->_engine->set('HVERSION', HVERSION);
-            $this->_engine->set('BASEPATH', $this->basePath);
-            $this->_engine->set('cssFiles', $this->_viewCss);
-            $this->_engine->set('jsFiles', $this->_viewScripts);
-            return $this->_engine->render($tplFileName, $data, $output);
-        } catch (Twig_Error_Loader $e) {
-            print_r($e);
+        $this->_initTemplateEngine();
+        $this->_engine->setArray($this->_tplVars);
+        $this->_engine->set('HVERSION', HVERSION);
+        $this->_engine->set('BASEPATH', $this->basePath);
+        $this->_engine->set('cssFiles', $this->_viewCss);
+        $this->_engine->set('jsFiles', $this->_viewScripts);
+        if ($this->_engine->isDefault()) {
+            $this->TplFullPath = $this->_engine->render($tplFileName, $data, $output);
+            extract($this->_engine->getArray());
+            ob_start();
+            include($this->TplFullPath);
+            $rendered = ob_get_contents();
+            ob_end_clean();
+            if (!$output) {
+                return $rendered;
+            }
+            echo $rendered;
+            return false;
         }
+        return $this->_engine->render($tplFileName, $data, $output);
     }
 
     public function addJs($filename) {

@@ -44,11 +44,9 @@ class Twig extends \hmvc\Web\AbstractTemplate {
     }
 
     public function render($filename = false, $data = true, $output = true) {
-
         if (is_array($data)) {
             $data = array_merge($this->_hdata, $data);
         }
-
 
         if (is_array($filename) && is_bool($data)) {
 

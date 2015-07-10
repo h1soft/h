@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -10,45 +11,58 @@
 
 namespace hmvc\Web\Template;
 
+use hmvc\Web\Application;
+use hmvc\Web\Config;
+
 class View extends \hmvc\Web\AbstractTemplate {
 
-    private $_charset = 'utf-8';
-    private $_ext = ".php";
+    private $tplRealPath;
 
     public function __construct() {
-        
+        $this->setTheme(Config::get('view.theme'));
+        $this->setViewPath(rootPath() . 'themes/' . $this->getTheme() . '/');
+    }
+
+    public function isDefault() {
+        return true;
     }
 
     public function render($filename = false, $data = false, $output = true) {
-        if ($data) {
-            if (!is_array($data)) {
-                throw new RuntimeException("You must pass an array to data view.");
+        $actionName = strtolower(rtrim(Application::app()->router()->getActionName(), 'Action'));;
+        if (is_array($data)) {
+            $this->_hdata = array_merge($this->_hdata, $data);
+        }
+        if (empty($filename)) {
+            $filename = $actionName;
+        }
+        if (is_array($filename) && is_bool($data)) {
+            if (!$data) {
+                $output = false;
             }
-            $this->_data = array_merge($this->_data, $data);
+            $data = array_merge($this->_hdata, $filename);
+            $filename = sprintf("%s/%s.php", strtolower(Application::app()->router()->getControllerName()), $actionName);
         }
 
-        $filename = $this->_selectView($this->getViewPaths(), $filename);
+        $this->tplRealPath = sprintf("%s%s.php", $this->getViewPath(), $filename);
+        $this->setTemplateFileName($filename);
 
-        $rendered = "";
+        if (!is_file($this->tplRealPath)) {
+            throw new \Exception("模版不存在 {$this->tplRealPath}");
+        }
 
-        ob_start();
-        require($filename);
-        $rendered = ob_get_contents();
-        ob_end_clean();
-
-        return $rendered;
+        return $this->tplRealPath;
     }
 
     public function assign($_valName, $_valValue) {
-        
+        $this->$_valName = $_valValue;
     }
 
     public function get($_valName) {
-        
+        return isset($this->$_valName) ? $this->$_valName : NULL;
     }
 
     public function set($_valName, $_valValue) {
-        
+        $this->$_valName = $_valValue;
     }
 
 }
