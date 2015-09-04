@@ -88,12 +88,12 @@ class MySQLi extends \hmvc\Db\Driver\Common {
                 $this->where($key, $value);
             }
         } else {
-            $this->_wheres = ' 1 ';
+            $this->_wheres = ' WHERE 1 ';
         }
         if ($orderby) {
             $orderby = 'order by ' . $orderby;
         }
-        $this->lastSQL = "SELECT * FROM {$_tbname} WHERE {$this->_wheres} $orderby";
+        $this->lastSQL = "SELECT * FROM {$_tbname} {$this->_wheres} $orderby";
         $this->_resetSql();
         return $this->query($this->lastSQL);
     }
