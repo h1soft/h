@@ -6,7 +6,19 @@ HMVC
 
 php 5.3 mvc framework
 -----------------------------------
+## Features
 
+- Regular expression  routing
+- Error handling and logging
+- Session management
+- CRUD-style PDO
+    - ActiveRecord
+    - EAV
+    - N-to-N relationships
+    - Scoped, nested transactions
+- Forced HTTPS
+- Flash messages
+- Twig Template
 
 ## 快速开始
 
