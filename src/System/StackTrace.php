@@ -147,11 +147,11 @@ class StackTrace {
                         } elseif (is_bool($arg)) {
                             $fun .= $arg ? 'true' : 'false';
                         } elseif (is_int($arg)) {
-                            $fun .= config('debug.display_errors',false) ? $arg : '%d';
+                            $fun .= defined('DEBUG') ? $arg : '%d';
                         } elseif (is_float($arg)) {
-                            $fun .= config('debug.display_errors',false) ? $arg : '%f';
+                            $fun .= defined('DEBUG') ? $arg : '%f';
                         } else {
-                            $fun .= config('debug.display_errors',false) ? '\'' . htmlspecialchars(substr(self::clear($arg), 0, 10)) . (strlen($arg) > 10 ? ' ...' : '') . '\'' : '%s';
+                            $fun .= defined('DEBUG') ? '\'' . htmlspecialchars(substr(self::clear($arg), 0, 10)) . (strlen($arg) > 10 ? ' ...' : '') . '\'' : '%s';
                         }
                         $mark = ', ';
                     }

@@ -13,9 +13,12 @@ namespace hmvc\Web;
 
 class Request extends \hmvc\Singleton {
 
+    private $_method = 'GET';
+    private $_accept = 'text/plain';
     private $_segments = array();
     private $_params = array();
     private $_paramArrays = array();
+    private $_acceptType = 'html';
 
     public function init() {
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
@@ -40,6 +43,8 @@ class Request extends \hmvc\Singleton {
         foreach ($_ENV as $key => $value) {
             $this->$key = $value;
         }
+        $this->_method = isset($_REQUEST['_method']) ? strtoupper($_REQUEST['_method']) : $_SERVER['REQUEST_METHOD'];
+        $this->_accept = isset($_REQUEST['_accept_type']) ? $_REQUEST['_accept_type'] : $_SERVER['HTTP_ACCEPT'];
     }
 
     /**
@@ -60,6 +65,22 @@ class Request extends \hmvc\Singleton {
 
     public function requestUri() {
         return $this->REQUEST_URI;
+    }
+
+    /**
+     * 获取当前请求方法
+     * @return string
+     */
+    public function getMethod() {
+        return $this->_method;
+    }
+
+    public function setAcceptType($acceptType) {
+        $this->_acceptType = $acceptType;
+    }
+
+    public function getAcceptType() {
+        return $this->_acceptType;
     }
 
     public function baseUrl() {
@@ -226,28 +247,28 @@ class Request extends \hmvc\Singleton {
     }
 
     public function isPost() {
-        if ($this->REQUEST_METHOD == "POST") {
+        if ($this->_method == "POST") {
             return true;
         }
         return false;
     }
 
     public function isGet() {
-        if ($this->REQUEST_METHOD == "GET") {
+        if ($this->_method == "GET") {
             return true;
         }
         return false;
     }
 
     public function isPut() {
-        if ($this->REQUEST_METHOD == "PUT" || $this->_METHOD || $this->_METHOD == "PUT") {
+        if ($this->_method == "PUT") {
             return true;
         }
         return false;
     }
 
     public function isDelete() {
-        if ($this->REQUEST_METHOD == "DELETE" || $this->_METHOD || $this->_METHOD == "DELETE") {
+        if ($this->_method == "DELETE") {
             return true;
         }
         return false;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the HMVC package.
  *
@@ -32,8 +33,9 @@ class Response {
         header('Content-Length: ' . filesize($f));
         echo file_get_contents($f);
     }
+
     protected function addCookie($cookie) {
-        
+
         if (version_compare(PHP_VERSION, '5.2.0', '>='))
             setcookie($cookie->name, $value, $cookie->expire, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly);
         else

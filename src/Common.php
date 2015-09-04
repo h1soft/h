@@ -47,6 +47,12 @@ function strip_image_tags($str) {
     return preg_replace(array('#<img[\s/]+.*?src\s*=\s*["\'](.+?)["\'].*?\>#', '#<img[\s/]+.*?src\s*=\s*(.+?).*?\>#'), '\\1', $str);
 }
 
+/**
+ * 获取变量
+ * @param type $param
+ * @param type $default
+ * @return type
+ */
 function get_default($param, $default = NULL) {
     if (isset($param)) {
         return $param;
@@ -111,27 +117,6 @@ function hmvc_exceptionHandler($exception) {
         return;
     }
     \hmvc\System\StackTrace::exceptionError($exception);
-}
-
-function _getRows($filename, $start, $offset = 0) {
-    $rows = file($filename);
-    $rowsNum = count($rows);
-    if ($offset == 0 || (($start + $offset) > $rowsNum)) {
-        $offset = $rowsNum - $start;
-    }
-    $fileList = "<?php
-/*
- * This file is part of the HMVC package.
- *
- * (c) Allen Niu <h@h1soft.net>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */\n\n\t........\n\n";
-    for ($i = $start; $max = $start + $offset, $i < $max; $i++) {
-        $fileList .= $rows[$i];
-    }
-    return $fileList;
 }
 
 /**
@@ -220,17 +205,16 @@ function url_to($_url, $_params = NULL, $_type = false) {
     return sprintf("%s%s/%s%s%s", $basePath, $app, $_url, hmvc\Web\Config::get('router.suffix'), $querystring);
 }
 
-function arrayToObject($d) {
-    if (is_array($d)) {
-        /*
-         * Return array converted to object
-         * Using __FUNCTION__ (Magic constant)
-         * for recursive call
-         */
+/**
+ * 数组转成对象
+ * @param type $data
+ * @return object
+ */
+function arrayToObject($data) {
+    if (is_array($data)) {
         return (object) array_map(__FUNCTION__, $d);
     } else {
-        // Return object
-        return $d;
+        return $data;
     }
 }
 
@@ -273,7 +257,7 @@ function session($key, $default = NULL) {
 
 function p() {
     foreach (func_get_args() as $value) {
-        echo '<pre style="background-color:#EEE">' . print_r($value, TRUE) . "</pre><br/>";
+        dump($value);
     }
     die;
 }
@@ -286,28 +270,19 @@ function rootPath() {
     return hmvc\HApplication::rootPath();
 }
 
+/**
+ * VAR目录
+ * @return type
+ */
 function varPath() {
     return hmvc\HApplication::varPath();
 }
 
-/**
- * 打印日志
- * Log: ROOTPATH: var/logs/
- * @param type $message
- * @return type
- */
-function hlog($message) {
-    $path = varPath() . 'logs/' . date('Y-m-d') . '.log';
-    return error_log(date('H:i:s ') . getenv('REMOTE_ADDR') . " $message\n", 3, $path);
-}
-
 function encode($string, $to = 'UTF-8', $from = 'UTF-8') {
-    // ASCII is already valid UTF-8
     if ($to == 'UTF-8' AND is_ascii($string)) {
         return $string;
     }
 
-    // Convert the string
     return @iconv($from, $to . '//TRANSLIT//IGNORE', $string);
 }
 
@@ -341,7 +316,7 @@ function sanitize($string, $spaces = TRUE) {
 }
 
 /**
- * Create a SEO friendly URL string from a valid UTF-8 string.
+ * 中文URL转码
  *
  * @param string $string to filter
  * @return string
@@ -350,24 +325,108 @@ function sanitize_url($string) {
     return urlencode(mb_strtolower(sanitize($string, FALSE)));
 }
 
-function to_xml($object, $root = 'data', $xml = NULL, $unknown = 'element', $doctype = "<?xml version = '1.0' encoding = 'utf-8'?>") {
-    if (is_null($xml)) {
-        $xml = simplexml_load_string("$doctype<$root/>");
-    }
+/**
+ * 对象转成XML
+ * @param mixed $mixed
+ * @param DOMDocument $domElement
+ * @param DOMDocument $DOMDocument
+ */
+function xml_encode($mixed, $domElement = null, $DOMDocument = null) {
+    if (is_null($DOMDocument)) {
+        $DOMDocument = new DOMDocument;
+        $DOMDocument->formatOutput = true;
+        xml_encode($mixed, $DOMDocument, $DOMDocument);
+        echo $DOMDocument->saveXML();
+    } else {
+        if (is_array($mixed)) {
+            foreach ($mixed as $index => $mixedElement) {
+                if (is_int($index)) {
+                    if ($index === 0) {
+                        $node = $domElement;
+                    } else {
+                        $node = $DOMDocument->createElement($domElement->tagName);
+                        $domElement->parentNode->appendChild($node);
+                    }
+                } else {
+                    $plural = $DOMDocument->createElement($index);
+                    $domElement->appendChild($plural);
+                    $node = $plural;
+                    if (!(rtrim($index, 's') === $index)) {
+                        $singular = $DOMDocument->createElement(rtrim($index, 's'));
+                        $plural->appendChild($singular);
+                        $node = $singular;
+                    }
+                }
 
-    foreach ((array) $object as $k => $v) {
-        if (is_int($k)) {
-            $k = $unknown;
-        }
-
-        if (is_scalar($v)) {
-            $xml->addChild($k, h($v));
+                xml_encode($mixedElement, $node, $DOMDocument);
+            }
         } else {
-            $v = (array) $v;
-            $node = array_diff_key($v, array_keys(array_keys($v))) ? $xml->addChild($k) : $xml;
-            self::from($v, $k, $node);
+            $domElement->appendChild($DOMDocument->createTextNode($mixed));
         }
     }
+}
 
-    return $xml;
+/**
+ * 打印日志
+ * @param type $message
+ * @return boolean
+ */
+function log_message($message) {
+    if (empty($message)) {
+        return false;
+    }
+    $log_path = config('logs.path', 'var/logs/');
+    if ($log_path == 'var/logs/') {
+        $path = rootPath() . $log_path . date('Y-m-d') . '.log';
+    } else {
+        $path = $log_path . date('Y-m-d') . '.log';
+    }
+
+    return error_log(date('H:i:s ') . getenv('REMOTE_ADDR') . " $message\r\n", 3, $path);
+}
+
+/**
+ * 判断是否是ASCII
+ * @param type $string
+ * @return type
+ */
+function is_ascii($string) {
+    return !preg_match('/[^\x00-\x7F]/S', $string);
+}
+
+function directory($dir, $recursive = TRUE) {
+    $i = new \RecursiveDirectoryIterator($dir);
+    if (!$recursive)
+        return $i;
+    return new \RecursiveIteratorIterator($i, \RecursiveIteratorIterator::SELF_FIRST);
+}
+
+function dir_is_writable($dir, $chmod = 0755) {
+    if (!is_dir($dir) AND ! mkdir($dir, $chmod, TRUE))
+        return FALSE;
+    if (!is_writable($dir) AND ! chmod($dir, $chmod))
+        return FALSE;
+    return TRUE;
+}
+
+/**
+ * 打印对象
+ */
+function dump() {
+    $string = '';
+    $index = 0;
+    echo '<p><h2>Dumper</h2></p>';
+    foreach (func_get_args() as $value) {
+        $string .= '<p><h3>Object #' . $index . '</h3></p>
+            <pre style="background: #FFFFCC repeat scroll 0 0;
+border: 0px solid #aaaaaa;
+border-radius: 10px 10px 10px 10px;
+color: #000000;
+font-size: 11pt;
+line-height: 160%;
+margin-bottom: 1em;
+padding: 1em;">' . h($value === NULL ? 'NULL' : (is_scalar($value) ? $value : print_r($value, TRUE))) . "</pre>\n";
+        $index++;
+    }
+    echo($string);
 }

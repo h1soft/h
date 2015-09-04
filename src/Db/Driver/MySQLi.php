@@ -81,22 +81,28 @@ class MySQLi extends \hmvc\Db\Driver\Common {
         }
     }
 
-    public function getAll($_tbname, $_where = NULL, $orderby = NULL) {
-        $_tbname = $this->tb_name($_tbname);
-        if (!$_where) {
-            $_where = " 1 ";
+    public function getAll($tablename, $_where = NULL, $orderby = NULL) {
+        $_tbname = $this->tb_name($tablename);
+        if (is_array($_where)) {
+            foreach ($_where as $key => $value) {
+                $this->where($key, $value);
+            }
+        } else {
+            $this->_wheres = ' 1 ';
         }
         if ($orderby) {
             $orderby = 'order by ' . $orderby;
         }
-        return $this->query("SELECT * FROM $_tbname WHERE $_where $orderby");
+        $this->lastSQL = "SELECT * FROM {$_tbname} WHERE {$this->_wheres} $orderby";
+        $this->_resetSql();
+        return $this->query($this->lastSQL);
     }
 
-    public function getOne($_tbname, $_where) {
+    public function getOne($tablename, $_where) {
         if (!$_where) {
             return NULL;
         }
-        $_tbname = $this->tb_name($_tbname);
+        $_tbname = $this->tb_name($tablename);
         if (is_array($_where)) {
             foreach ($_where as $key => $value) {
                 $this->where($key, $value);
@@ -109,9 +115,12 @@ class MySQLi extends \hmvc\Db\Driver\Common {
         return $this->getRow("SELECT * FROM $_tbname WHERE $_where");
     }
 
-    public function scalar($_tbname, $colid = 0) {
-        $_tbname = $this->tb_name($_tbname);
-        $row = $this->getRow("SELECT {$this->_select_cols} FROM $_tbname {$this->_wheres}", MYSQL_NUM);
+    public function scalar($tablename, $colid = 0) {
+        $_tbname = $this->tb_name($tablename);
+        if (empty($this->_wheres)) {
+            return NULL;
+        }
+        $row = $this->getRow("SELECT {$this->_select_cols} FROM {$_tbname} {$this->_wheres}", MYSQL_NUM);
         $this->_resetSql();
         if ($row && isset($row[$colid])) {
             return $row[$colid];
@@ -138,7 +147,7 @@ class MySQLi extends \hmvc\Db\Driver\Common {
         if (is_array($data)) {
             $query = $this->_buildQueryString($query, $data);
         }
-        if(!$this->_link->query($query)){
+        if (!$this->_link->query($query)) {
             throw new \Exception($this->_link->error);
         }
         $this->_cur_result_count = $this->_link->affected_rows;
@@ -202,11 +211,11 @@ class MySQLi extends \hmvc\Db\Driver\Common {
         $vals = array();
         foreach ($_data as $key => $val) {
             $keys[] = sprintf('`%s`', $this->escape($key));
-            if(is_object($val)){
+            if (is_object($val)) {
                 $vals[] = sprintf("%s", $val);
-            }else{
+            } else {
                 $vals[] = sprintf("'%s'", $this->escape($val));
-            }            
+            }
         }
         $query = vsprintf("INSERT INTO `%s` (%s) VALUES (%s)", array(
             $_tbname,
@@ -288,7 +297,7 @@ class MySQLi extends \hmvc\Db\Driver\Common {
                 $_where = $this->_wheres;
             } else {
                 $_where = " WHERE " . $_where;
-            }            
+            }
             $query = vsprintf("DELETE FROM `%s` %s", array(
                 $_tbname,
                 $_where
@@ -430,8 +439,8 @@ class MySQLi extends \hmvc\Db\Driver\Common {
         return $this;
     }
 
-    public function where($name, $value,$syk=true) {
-        if($syk){
+    public function where($name, $value, $syk = true) {
+        if ($syk) {
             $name = "`$name`";
         }
         if (empty($this->_wheres)) {

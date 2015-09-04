@@ -33,7 +33,7 @@ class Error extends \hmvc\Web\Controller {
 <p>Additionally, a 404 Not Found
 error was encountered while trying to use an ErrorDocument to handle the request.</p>
 EOF;
-        if (config('debug.display_errors', false)) {
+        if (defined('DEBUG')) {
             echo <<<EOF
             <div style="border:solid 1px #ccc;">
                 <div style="line-height:30px;font-weight:bold;background-color: #F3B516;">Debug</div>

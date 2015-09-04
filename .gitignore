@@ -45,3 +45,5 @@ index.php
 /src/apigen.neon
 /apigen.neon
 themes
+var
+upload

@@ -7,10 +7,10 @@ namespace hmvc\Web;
  */
 class Application extends \hmvc\HApplication {
 
-   /**
-    *
-    * @var  h\Web\Route
-    */
+    /**
+     *
+     * @var  h\Web\Route
+     */
     private static $_router;
     private static $request;
     private static $response;
@@ -28,7 +28,7 @@ class Application extends \hmvc\HApplication {
         parent::__construct();
         self::$_app = $this;
     }
-    
+
     /**
      * 
      * @param string $namespace
@@ -38,7 +38,7 @@ class Application extends \hmvc\HApplication {
         $this->bootstrap = $namespace;
         return $this;
     }
-    
+
     private function startBootstrap() {
         if ($this->bootstrap &&
                 class_exists($this->bootstrap)) {
@@ -50,7 +50,7 @@ class Application extends \hmvc\HApplication {
 
     private function endBootstrap() {
         if ($this->bootstrap &&
-                $this->bootstrapObj) {            
+                $this->bootstrapObj) {
             $this->bootstrapObj->ApplicationEnd();
         }
     }
@@ -59,7 +59,7 @@ class Application extends \hmvc\HApplication {
 
         self::$basePath = dirname($_SERVER['SCRIPT_NAME']);
 
-        if(self::$basePath == '/' || self::$basePath == '\\'){
+        if (self::$basePath == '/' || self::$basePath == '\\') {
             self::$basePath = '';
         }
 
@@ -93,10 +93,10 @@ class Application extends \hmvc\HApplication {
         $this->startBootstrap();
 
         self::$_router->dispatch();
-        
+
         $this->endBootstrap();
     }
-    
+
     /**
      * 
      * @return \hmvc\Web\Request
@@ -104,7 +104,7 @@ class Application extends \hmvc\HApplication {
     public static function request() {
         return self::$request;
     }
-    
+
     /**
      * 
      * @return \hmvc\Web\Response
@@ -123,7 +123,7 @@ class Application extends \hmvc\HApplication {
         }
         return self::$_session;
     }
-    
+
     /**
      * 
      * @return \hmvc\Web\Router
@@ -173,9 +173,9 @@ class Application extends \hmvc\HApplication {
             self::$_psr_loader->addNameSpace("\\{$this->src}\\", $this->src);
         }
 
-        if(isset($this->autoload['psr4']) && is_array($this->autoload['psr4'])){
-            foreach ($this->autoload['psr4'] as $key => $value) {					
-                self::$_psr_loader->addNameSpace($key,$value);
+        if (isset($this->autoload['psr4']) && is_array($this->autoload['psr4'])) {
+            foreach ($this->autoload['psr4'] as $key => $value) {
+                self::$_psr_loader->addNameSpace($key, $value);
             }
         }
     }
@@ -201,8 +201,11 @@ class Application extends \hmvc\HApplication {
         if (!self::$_router->getController()) {
             Application::checkController(\hmvc\Web\Config::get('router.controller'), 'Index');
         }
-        if (method_exists(self::$_router->getController(), $_name . 'Action')) {
+        if ((self::$_router->getController() instanceof Controller) && method_exists(self::$_router->getController(), $_name . 'Action')) {
             self::$_router->setAction($_name . 'Action');
+            return true;
+        } else if ((self::$_router->getController() instanceof RestController)) {
+            self::$_router->setAction($_name);
             return true;
         }
         return false;

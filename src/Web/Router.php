@@ -17,7 +17,7 @@ class Router {
     protected $defaultController = "Index";
     protected $defaultAction = "Index";
     protected $defaultApp = "Catalog";
-    protected $_cobj_ref = NULL;
+    protected $cInstance = NULL;
     protected $suffix = '';
     private $application;
     public $strNameSpace;
@@ -30,16 +30,16 @@ class Router {
     public function dispatch() {
         $this->initRequest();
 
-        if (!$this->_cobj_ref) {
+        if (!$this->cInstance) {
             $this->_notfound();
         }
 
-        $this->_cobj_ref->init();
+        $this->cInstance->init();
 
-        $this->_cobj_ref->before();
+        $this->cInstance->before();
 
-        if (method_exists($this->_cobj_ref, $this->getActionName())) {
-            $reflectionMethod = new \ReflectionMethod($this->_cobj_ref, $this->getActionName());
+        if ($this->cInstance instanceof Controller && method_exists($this->cInstance, $this->getActionName())) {
+            $reflectionMethod = new \ReflectionMethod($this->cInstance, $this->getActionName());
             if ($reflectionMethod->getNumberOfRequiredParameters() > 0) {
                 $paramsWithid = $this->application->request()->getParamArrays();
                 $paramsWithName = $this->application->request()->getParams();
@@ -51,26 +51,32 @@ class Router {
                             $ps[] = is_array($paramsWithName[$name]) ? $paramsWithName[$name] : array($paramsWithName[$name]);
                         else if (!is_array($paramsWithName[$name]))
                             $ps[] = $paramsWithName[$name];
-                    }else if (isset($paramsWithid[$i+1])) {
-                        $ps[] = $paramsWithid[$i+1];
-                    } else if ($param->isDefaultValueAvailable())
+                    }else if (isset($paramsWithid[$i])) {
+                        $ps[] = $paramsWithid[$i];
+                    } else if ($param->isDefaultValueAvailable()) {
                         $ps[] = $param->getDefaultValue();
+                    } else {
+                        $ps[] = NULL;
+                    }
                 }
-                $reflectionMethod->invokeArgs($this->_cobj_ref, $ps);
-//                $reflectionMethod->invokeArgs($this->_cobj_ref, $this->application->request()->getParamArrays());
+                $reflectionMethod->invokeArgs($this->cInstance, $ps);
+//                call_user_func_array(array($this->cInstance,  $this->getActionName()), array());
             } else {
-                $reflectionMethod->invoke($this->_cobj_ref);
+                $reflectionMethod->invoke($this->cInstance);
             }
+        } else if ($this->cInstance instanceof RestController) {
+            call_user_func_array(array($this->cInstance, 'dispatch'), array($this->getActionName(), $this->application->request()->getParamArrays()));
+//            call_user_func_array(array($this->cInstance, $this->getActionName()), $this->application->request()->getParamArrays());
         } else {
             $this->_notfound();
         }
 
-        $this->_cobj_ref->after();
+        $this->cInstance->after();
     }
 
     private function initRequest() {
         //init config
-        $this->suffix = Config::get('router.suffix');
+        $this->suffix = Config::get('router.suffix', '');
 
         $this->_rewrite();
 
@@ -139,13 +145,6 @@ class Router {
                             $this->_notfound();
                             return;
                         }
-                        if (Application::checkController(ucwords($this->requestUri[1]))) {
-                            $this->defaultController = ucwords($this->requestUri[1]);
-                        } else {
-                            $this->_notfound();
-                            return;
-                        }
-
                         if (!Application::checkAction(ucwords($this->requestUri[2]))) {
                             $this->_notfound();
                             return;
@@ -153,9 +152,10 @@ class Router {
                     } else if (Application::checkController(ucwords($this->requestUri[0]))) {
                         $this->defaultController = ucwords($this->requestUri[0]);
                         if (!Application::checkAction(ucwords($this->requestUri[1]))) {
-                            $this->_notfound();
+                            $this->application->request()->setParamArrays(array($this->requestUri[1], $this->requestUri[2]));
+                        } else {
+                            $this->application->request()->setParamArrays(array($this->requestUri[2]));
                         }
-                        $this->application->request()->setParamArrays(array($this->requestUri[2]));
                         return;
                     } else {
 //                        $this->_notfound();
@@ -216,26 +216,21 @@ class Router {
                     } else if (Application::checkController(ucwords($this->requestUri[0]))) {
                         $this->defaultController = ucwords($this->requestUri[0]);
                         if (!Application::checkAction(ucwords($this->requestUri[1]))) {
-                            $this->_notfound();
+                            $this->prcParams(1, $_param_len);
+                        } else {
+                            $this->prcParams(2, $_param_len);
                         }
-                        $this->prcParams(2, $_param_len);
-                        return;
                     } else {
-//                        $this->_notfound();
-                        $this->prcParams(0, $_param_len);
                         $this->_defaultController();
-                        $this->application->request()->setParamArrays($this->requestUri);
+                        $this->prcParams(0, $_param_len);
+//                        $this->application->request()->setParamArrays($this->requestUri);
                     }
                     break;
                 default:
                     $this->_notfound();
                     break;
-            }//switch
+            }
         } else {
-            //no param
-            //app/c/a
-            // $this->strNameSpace = sprintf("\\%s\\%s\\Controller\\%s",Application::app()->src,$this->getAppName(),$this->getControllerName());
-//             $this->_cobj_ref = new $this->strNameSpace();            
             $this->_defaultController();
         }
     }
@@ -246,8 +241,10 @@ class Router {
             $_GET['r'] = $_SERVER['PATH_INFO'];
         }
         if (isset($_GET['r'])) {
-
-            $r = str_replace($this->suffix, '', $_GET['r']);
+            $pathinfo = pathinfo($_GET['r']);
+            $acceptType = config('router.accepttype', '.html|.xml|.json');
+            $this->application->request()->setAcceptType($pathinfo['extension']);
+            $r = preg_replace("/{$acceptType}$/", '', $_GET['r']);
             if (function_exists('filter_var')) {
                 $this->requestUri = explode('/', filter_var(trim($r, '/'), FILTER_SANITIZE_STRING));
             } else {
@@ -298,15 +295,12 @@ class Router {
         }
     }
 
-    // private function _route_app(){
-    // }
-
     public function getControllerName() {
         return $this->defaultController;
     }
 
     public function getController() {
-        return $this->_cobj_ref;
+        return $this->cInstance;
     }
 
     /**
@@ -329,10 +323,10 @@ class Router {
      * 404 Page
      */
     private function _notfound() {
-        $this->_cobj_ref = new $this->errorController();
-        $this->_cobj_ref->appName = $this->defaultApp;
-        $this->_cobj_ref->controllerName = $this->defaultController;
-        $this->_cobj_ref->actionName = $this->defaultAction;
+        $this->cInstance = new $this->errorController();
+        $this->cInstance->appName = $this->defaultApp;
+        $this->cInstance->controllerName = $this->defaultController;
+        $this->cInstance->actionName = $this->defaultAction;
         $this->defaultController = "Error";
         $this->defaultAction = 'notfoundAction';
     }
@@ -389,8 +383,8 @@ class Router {
         return $text;
     }
 
-    public function setController($_cobj_ref) {
-        $this->_cobj_ref = $_cobj_ref;
+    public function setController($cInstance) {
+        $this->cInstance = $cInstance;
     }
 
     /**
