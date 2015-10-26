@@ -61,7 +61,10 @@ project
             |__config.php
             |__db.php
             |__rewrite.php
-
+        |__crons
+            |__job1.php
+            |__job2.php 
+        |__themes
 ```
 
 
@@ -73,3 +76,9 @@ php5.3或者以上
 ## 支持
 自定义路由
 MySQLi
+FlashMessage
+RESTFull
+i18n
+Log
+Console
+
